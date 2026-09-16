@@ -702,6 +702,7 @@
         var btn = el('button', 'pill' + (p.id === STATE.period ? ' active' : ''), p.label);
         btn.setAttribute('data-period', p.id);
         btn.addEventListener('click', function () {
+          if (p.id === 'custom') { openRangePanel(); return; }
           STATE.period = p.id;
           document.querySelectorAll('[data-period-group] .pill').forEach(function (b) {
             b.classList.toggle('active', b.getAttribute('data-period') === p.id);
@@ -711,6 +712,69 @@
         group.appendChild(btn);
       });
     });
+  }
+
+  // ---------- КАЛЕНДАРИК: выбор произвольного периода ----------
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function isoDate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function ensureRangeModal() {
+    if (document.getElementById('range-modal')) return;
+    var today = new Date();
+    var monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 29);
+    var m = document.createElement('div');
+    m.id = 'range-modal'; m.hidden = true;
+    m.style.cssText = 'position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,16,18,0.38);';
+    m.innerHTML =
+      '<div style="background:var(--card);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 18px 26px;box-shadow:0 -8px 30px rgba(0,0,0,0.18);">' +
+        '<div style="font-size:16px;font-weight:700;margin-bottom:2px;">Выбор периода</div>' +
+        '<div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;">Данные посчитаются из Битрикса за выбранные даты</div>' +
+        '<label style="display:block;font-size:11px;color:var(--text-faint);margin-bottom:4px;">С даты</label>' +
+        '<input type="date" id="range-from" value="' + isoDate(monthAgo) + '" max="' + isoDate(today) + '" ' +
+          'style="width:100%;padding:11px 12px;border:1px solid var(--border-strong);border-radius:12px;font-size:15px;background:var(--card);color:var(--text);margin-bottom:12px;">' +
+        '<label style="display:block;font-size:11px;color:var(--text-faint);margin-bottom:4px;">По дату</label>' +
+        '<input type="date" id="range-to" value="' + isoDate(today) + '" max="' + isoDate(today) + '" ' +
+          'style="width:100%;padding:11px 12px;border:1px solid var(--border-strong);border-radius:12px;font-size:15px;background:var(--card);color:var(--text);margin-bottom:8px;">' +
+        '<div id="range-err" style="font-size:11.5px;color:#C2596B;min-height:14px;margin-bottom:8px;"></div>' +
+        '<div style="display:flex;gap:10px;">' +
+          '<button id="range-cancel" style="flex:1;padding:12px;border:1px solid var(--border-strong);border-radius:12px;background:var(--card);color:var(--text);font-size:14px;font-weight:600;">Отмена</button>' +
+          '<button id="range-apply" style="flex:2;padding:12px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;">Показать</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(m);
+    m.addEventListener('click', function (e) { if (e.target === m) closeRangePanel(); });
+    document.getElementById('range-cancel').addEventListener('click', closeRangePanel);
+    document.getElementById('range-apply').addEventListener('click', applyRange);
+  }
+  function openRangePanel() { ensureRangeModal(); document.getElementById('range-err').textContent = ''; document.getElementById('range-modal').hidden = false; }
+  function closeRangePanel() { var m = document.getElementById('range-modal'); if (m) m.hidden = true; }
+  function applyRange() {
+    var f = document.getElementById('range-from').value;
+    var t = document.getElementById('range-to').value;
+    var err = document.getElementById('range-err');
+    if (!f || !t) { err.textContent = 'Укажите обе даты'; return; }
+    if (f > t) { err.textContent = 'Дата «с» позже даты «по»'; return; }
+    err.textContent = '';
+    document.getElementById('range-apply').textContent = 'Считаю…';
+    loadCustom(f, t);
+  }
+  function loadCustom(f, t) {
+    apiPost('/api/data', { range: { from: f, to: t } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j.ok || !j.data || !j.data.home || !j.data.home.custom) { throw new Error('no custom'); }
+        STATE.data = j.data;
+        STATE.role = j.role || STATE.role;
+        STATE.period = 'custom';
+        applyOverrides();
+        closeRangePanel();
+        document.getElementById('range-apply').textContent = 'Показать';
+        renderPeriodPills();
+        renderAll();
+      })
+      .catch(function () {
+        document.getElementById('range-apply').textContent = 'Показать';
+        document.getElementById('range-err').textContent = 'Не удалось посчитать. Попробуйте ещё раз.';
+      });
   }
 
   function renderAll() {
@@ -913,7 +977,7 @@
       paid.recent.forEach(function (r) {
         var row = el('div', 'deal-row');
         row.innerHTML = '<div class="deal-icon" style="background:#FBEFF0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 16 8 8l4 4 4-8" stroke="#C2596B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-          '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">' + r.channel + ' · ' + fmtDateShort(r.date) + '</div></div>' +
+          '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">Оплата · ' + fmtDateShort(r.date) + '</div></div>' +
           '<div class="deal-amt">' + rub(r.amount) + '</div>';
         recentWrap.appendChild(row);
       });
