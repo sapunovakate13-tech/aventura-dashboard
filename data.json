@@ -1,0 +1,971 @@
+{
+  "generated_at": "2026-09-16T11:20:00+03:00",
+  "periods": [
+    {
+      "id": "day",
+      "label": "День"
+    },
+    {
+      "id": "week",
+      "label": "Неделя"
+    },
+    {
+      "id": "month",
+      "label": "Месяц"
+    },
+    {
+      "id": "custom",
+      "label": "Период"
+    }
+  ],
+  "default_period": "month",
+  "home": {
+    "day": {
+      "plan_fact": {
+        "fact": 230000,
+        "plan": 200000,
+        "percent": 115,
+        "pace_expected_percent": 100,
+        "pace_delta": 15
+      },
+      "funnel_summary": {
+        "leads": 11,
+        "sales": 1,
+        "revenue": 230000,
+        "conversion_percent": 9.1,
+        "cycle_days": 18
+      },
+      "metrics": {
+        "cpl": 1773,
+        "cpo": 19500,
+        "avg_check": 230000,
+        "drr_percent": 8.5,
+        "romi_percent": 1079,
+        "repeat_share_percent": 18
+      },
+      "ad_spend": {
+        "yandex_direct_spend": 19500,
+        "account_balance": 45000
+      },
+      "top_alert": {
+        "severity": "warning",
+        "title": "Мало лидов сегодня",
+        "description": "11 лидов — ниже обычного дневного темпа"
+      },
+      "leads_plan_fact": {
+        "fact": 11,
+        "plan": 7,
+        "percent": 157
+      }
+    },
+    "week": {
+      "plan_fact": {
+        "fact": 1150000,
+        "plan": 1381000,
+        "percent": 83,
+        "pace_expected_percent": 80,
+        "pace_delta": 3
+      },
+      "funnel_summary": {
+        "leads": 48,
+        "sales": 4,
+        "revenue": 1150000,
+        "conversion_percent": 8.3,
+        "cycle_days": 18
+      },
+      "metrics": {
+        "cpl": 1833,
+        "cpo": 22000,
+        "avg_check": 287500,
+        "drr_percent": 7.7,
+        "romi_percent": 1207,
+        "repeat_share_percent": 18
+      },
+      "ad_spend": {
+        "yandex_direct_spend": 88000,
+        "account_balance": 45000
+      },
+      "top_alert": {
+        "severity": "critical",
+        "title": "CPL по Директу выше нормы",
+        "description": "1 833 ₽ за неделю"
+      },
+      "leads_plan_fact": {
+        "fact": 48,
+        "plan": 51,
+        "percent": 94
+      }
+    },
+    "month": {
+      "plan_fact": {
+        "fact": 3273736,
+        "plan": 6000000,
+        "percent": 55,
+        "pace_expected_percent": 50,
+        "pace_delta": 5
+      },
+      "funnel_summary": {
+        "leads": 196,
+        "sales": 14,
+        "revenue": 3273736,
+        "conversion_percent": 7.1,
+        "cycle_days": 18
+      },
+      "metrics": {
+        "cpl": 1885,
+        "cpo": 25821,
+        "avg_check": 233838,
+        "drr_percent": 11.0,
+        "romi_percent": 806,
+        "repeat_share_percent": 18
+      },
+      "ad_spend": {
+        "yandex_direct_spend": 361500,
+        "account_balance": 45000
+      },
+      "top_alert": {
+        "severity": "critical",
+        "title": "CPL по Директу выше нормы",
+        "description": "1 885 ₽ за месяц"
+      },
+      "leads_plan_fact": {
+        "fact": 196,
+        "plan": 220,
+        "percent": 89
+      }
+    },
+    "custom": {
+      "plan_fact": {
+        "fact": 3273736,
+        "plan": 6000000,
+        "percent": 55,
+        "pace_expected_percent": 50,
+        "pace_delta": 5
+      },
+      "funnel_summary": {
+        "leads": 196,
+        "sales": 14,
+        "revenue": 3273736,
+        "conversion_percent": 7.1,
+        "cycle_days": 18
+      },
+      "metrics": {
+        "cpl": 1885,
+        "cpo": 25821,
+        "avg_check": 233838,
+        "drr_percent": 11.0,
+        "romi_percent": 806,
+        "repeat_share_percent": 18
+      },
+      "ad_spend": {
+        "yandex_direct_spend": 361500,
+        "account_balance": 45000
+      },
+      "top_alert": {
+        "severity": "critical",
+        "title": "CPL по Директу выше нормы",
+        "description": "1 885 ₽ за месяц"
+      },
+      "leads_plan_fact": {
+        "fact": 196,
+        "plan": 220,
+        "percent": 89
+      }
+    }
+  },
+  "leads_funnel": {
+    "day": {
+      "by_channel": [
+        {
+          "channel": "site",
+          "name": "Сайт",
+          "leads": 8,
+          "share_percent": 73
+        },
+        {
+          "channel": "social",
+          "name": "Соцсети",
+          "leads": 2,
+          "share_percent": 18
+        },
+        {
+          "channel": "calls",
+          "name": "Чаты и звонки",
+          "leads": 1,
+          "share_percent": 9
+        },
+        {
+          "channel": "reactivation",
+          "name": "Реактивация",
+          "leads": 0,
+          "share_percent": 0
+        }
+      ],
+      "by_direction": [
+        {
+          "direction": "Кольский, лето",
+          "leads": 2,
+          "cpl": 1838,
+          "cycle_days": 9,
+          "is_exact": false
+        },
+        {
+          "direction": "Общие запросы",
+          "leads": 3,
+          "cpl": 1210,
+          "cycle_days": 6,
+          "is_exact": false
+        },
+        {
+          "direction": "Южная Корея",
+          "leads": 2,
+          "cpl": 1690,
+          "cycle_days": 16,
+          "is_exact": false
+        },
+        {
+          "direction": "Китай, юг",
+          "leads": 1,
+          "cpl": 1950,
+          "cycle_days": 19,
+          "is_exact": false
+        },
+        {
+          "direction": "Япония",
+          "leads": 1,
+          "cpl": 2380,
+          "cycle_days": 26,
+          "is_exact": false
+        },
+        {
+          "direction": "Маврикий",
+          "leads": 1,
+          "cpl": 2640,
+          "cycle_days": 24,
+          "is_exact": false
+        },
+        {
+          "direction": "Узбекистан",
+          "leads": 1,
+          "cpl": 2120,
+          "cycle_days": 14,
+          "is_exact": false
+        },
+        {
+          "direction": "Оман",
+          "leads": 1,
+          "cpl": 2900,
+          "cycle_days": 22,
+          "is_exact": false
+        }
+      ]
+    },
+    "week": {
+      "by_channel": [
+        {
+          "channel": "site",
+          "name": "Сайт",
+          "leads": 35,
+          "share_percent": 73
+        },
+        {
+          "channel": "social",
+          "name": "Соцсети",
+          "leads": 8,
+          "share_percent": 17
+        },
+        {
+          "channel": "calls",
+          "name": "Чаты и звонки",
+          "leads": 5,
+          "share_percent": 10
+        },
+        {
+          "channel": "reactivation",
+          "name": "Реактивация",
+          "leads": 0,
+          "share_percent": 0
+        }
+      ],
+      "by_direction": [
+        {
+          "direction": "Кольский, лето",
+          "leads": 9,
+          "cpl": 1838,
+          "cycle_days": 9,
+          "is_exact": false
+        },
+        {
+          "direction": "Общие запросы",
+          "leads": 13,
+          "cpl": 1210,
+          "cycle_days": 6,
+          "is_exact": false
+        },
+        {
+          "direction": "Южная Корея",
+          "leads": 7,
+          "cpl": 1690,
+          "cycle_days": 16,
+          "is_exact": false
+        },
+        {
+          "direction": "Китай, юг",
+          "leads": 6,
+          "cpl": 1950,
+          "cycle_days": 19,
+          "is_exact": false
+        },
+        {
+          "direction": "Япония",
+          "leads": 4,
+          "cpl": 2380,
+          "cycle_days": 26,
+          "is_exact": false
+        },
+        {
+          "direction": "Маврикий",
+          "leads": 4,
+          "cpl": 2640,
+          "cycle_days": 24,
+          "is_exact": false
+        },
+        {
+          "direction": "Узбекистан",
+          "leads": 3,
+          "cpl": 2120,
+          "cycle_days": 14,
+          "is_exact": false
+        },
+        {
+          "direction": "Оман",
+          "leads": 2,
+          "cpl": 2900,
+          "cycle_days": 22,
+          "is_exact": false
+        }
+      ]
+    },
+    "month": {
+      "by_channel": [
+        {
+          "channel": "site",
+          "name": "Сайт",
+          "leads": 142,
+          "share_percent": 72
+        },
+        {
+          "channel": "social",
+          "name": "Соцсети",
+          "leads": 33,
+          "share_percent": 17
+        },
+        {
+          "channel": "calls",
+          "name": "Чаты и звонки",
+          "leads": 21,
+          "share_percent": 11
+        },
+        {
+          "channel": "reactivation",
+          "name": "Реактивация",
+          "leads": 0,
+          "share_percent": 0
+        }
+      ],
+      "by_direction": [
+        {
+          "direction": "Кольский, лето",
+          "leads": 35,
+          "cpl": 1838,
+          "cycle_days": 9,
+          "is_exact": true
+        },
+        {
+          "direction": "Общие запросы",
+          "leads": 55,
+          "cpl": 1210,
+          "cycle_days": 6,
+          "is_exact": false
+        },
+        {
+          "direction": "Южная Корея",
+          "leads": 28,
+          "cpl": 1690,
+          "cycle_days": 16,
+          "is_exact": false
+        },
+        {
+          "direction": "Китай, юг",
+          "leads": 24,
+          "cpl": 1950,
+          "cycle_days": 19,
+          "is_exact": false
+        },
+        {
+          "direction": "Япония",
+          "leads": 18,
+          "cpl": 2380,
+          "cycle_days": 26,
+          "is_exact": false
+        },
+        {
+          "direction": "Маврикий",
+          "leads": 15,
+          "cpl": 2640,
+          "cycle_days": 24,
+          "is_exact": false
+        },
+        {
+          "direction": "Узбекистан",
+          "leads": 12,
+          "cpl": 2120,
+          "cycle_days": 14,
+          "is_exact": false
+        },
+        {
+          "direction": "Оман",
+          "leads": 9,
+          "cpl": 2900,
+          "cycle_days": 22,
+          "is_exact": false
+        }
+      ]
+    },
+    "custom": {
+      "by_channel": [
+        {
+          "channel": "site",
+          "name": "Сайт",
+          "leads": 142,
+          "share_percent": 72
+        },
+        {
+          "channel": "social",
+          "name": "Соцсети",
+          "leads": 33,
+          "share_percent": 17
+        },
+        {
+          "channel": "calls",
+          "name": "Чаты и звонки",
+          "leads": 21,
+          "share_percent": 11
+        },
+        {
+          "channel": "reactivation",
+          "name": "Реактивация",
+          "leads": 0,
+          "share_percent": 0
+        }
+      ],
+      "by_direction": [
+        {
+          "direction": "Кольский, лето",
+          "leads": 35,
+          "cpl": 1838,
+          "cycle_days": 9,
+          "is_exact": true
+        },
+        {
+          "direction": "Общие запросы",
+          "leads": 55,
+          "cpl": 1210,
+          "cycle_days": 6,
+          "is_exact": false
+        },
+        {
+          "direction": "Южная Корея",
+          "leads": 28,
+          "cpl": 1690,
+          "cycle_days": 16,
+          "is_exact": false
+        },
+        {
+          "direction": "Китай, юг",
+          "leads": 24,
+          "cpl": 1950,
+          "cycle_days": 19,
+          "is_exact": false
+        },
+        {
+          "direction": "Япония",
+          "leads": 18,
+          "cpl": 2380,
+          "cycle_days": 26,
+          "is_exact": false
+        },
+        {
+          "direction": "Маврикий",
+          "leads": 15,
+          "cpl": 2640,
+          "cycle_days": 24,
+          "is_exact": false
+        },
+        {
+          "direction": "Узбекистан",
+          "leads": 12,
+          "cpl": 2120,
+          "cycle_days": 14,
+          "is_exact": false
+        },
+        {
+          "direction": "Оман",
+          "leads": 9,
+          "cpl": 2900,
+          "cycle_days": 22,
+          "is_exact": false
+        }
+      ]
+    }
+  },
+  "deals": {
+    "day": {
+      "paid": {
+        "count": 1,
+        "total_amount": 230000,
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 1
+          },
+          {
+            "channel": "Соцсети",
+            "count": 0
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 0
+          }
+        ],
+        "recent": [
+          {
+            "direction": "Маврикий",
+            "channel": "Сайт",
+            "date": "2026-09-14",
+            "amount": 410000
+          },
+          {
+            "direction": "Китай, юг",
+            "channel": "Соцсети",
+            "date": "2026-09-13",
+            "amount": 265000
+          },
+          {
+            "direction": "Кольский, лето",
+            "channel": "Сайт",
+            "date": "2026-09-11",
+            "amount": 89000
+          }
+        ]
+      },
+      "in_progress": {
+        "count": 32,
+        "total_amount": 6900000,
+        "by_status": [
+          {
+            "status": "Новый лид",
+            "count": 12
+          },
+          {
+            "status": "Квалификация",
+            "count": 8
+          },
+          {
+            "status": "КП отправлено",
+            "count": 6
+          },
+          {
+            "status": "Переговоры / бронь",
+            "count": 4
+          },
+          {
+            "status": "Предоплата внесена",
+            "count": 2
+          }
+        ],
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 22
+          },
+          {
+            "channel": "Соцсети",
+            "count": 6
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 4
+          }
+        ]
+      }
+    },
+    "week": {
+      "paid": {
+        "count": 4,
+        "total_amount": 1150000,
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 3
+          },
+          {
+            "channel": "Соцсети",
+            "count": 1
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 0
+          }
+        ],
+        "recent": [
+          {
+            "direction": "Маврикий",
+            "channel": "Сайт",
+            "date": "2026-09-14",
+            "amount": 410000
+          },
+          {
+            "direction": "Китай, юг",
+            "channel": "Соцсети",
+            "date": "2026-09-13",
+            "amount": 265000
+          },
+          {
+            "direction": "Кольский, лето",
+            "channel": "Сайт",
+            "date": "2026-09-11",
+            "amount": 89000
+          }
+        ]
+      },
+      "in_progress": {
+        "count": 32,
+        "total_amount": 6900000,
+        "by_status": [
+          {
+            "status": "Новый лид",
+            "count": 12
+          },
+          {
+            "status": "Квалификация",
+            "count": 8
+          },
+          {
+            "status": "КП отправлено",
+            "count": 6
+          },
+          {
+            "status": "Переговоры / бронь",
+            "count": 4
+          },
+          {
+            "status": "Предоплата внесена",
+            "count": 2
+          }
+        ],
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 22
+          },
+          {
+            "channel": "Соцсети",
+            "count": 6
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 4
+          }
+        ]
+      }
+    },
+    "month": {
+      "paid": {
+        "count": 14,
+        "total_amount": 3273736,
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 10
+          },
+          {
+            "channel": "Соцсети",
+            "count": 3
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 1
+          }
+        ],
+        "recent": [
+          {
+            "direction": "Маврикий",
+            "channel": "Сайт",
+            "date": "2026-09-14",
+            "amount": 410000
+          },
+          {
+            "direction": "Китай, юг",
+            "channel": "Соцсети",
+            "date": "2026-09-13",
+            "amount": 265000
+          },
+          {
+            "direction": "Кольский, лето",
+            "channel": "Сайт",
+            "date": "2026-09-11",
+            "amount": 89000
+          }
+        ]
+      },
+      "in_progress": {
+        "count": 32,
+        "total_amount": 6900000,
+        "by_status": [
+          {
+            "status": "Новый лид",
+            "count": 12
+          },
+          {
+            "status": "Квалификация",
+            "count": 8
+          },
+          {
+            "status": "КП отправлено",
+            "count": 6
+          },
+          {
+            "status": "Переговоры / бронь",
+            "count": 4
+          },
+          {
+            "status": "Предоплата внесена",
+            "count": 2
+          }
+        ],
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 22
+          },
+          {
+            "channel": "Соцсети",
+            "count": 6
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 4
+          }
+        ]
+      }
+    },
+    "custom": {
+      "paid": {
+        "count": 14,
+        "total_amount": 3273736,
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 10
+          },
+          {
+            "channel": "Соцсети",
+            "count": 3
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 1
+          }
+        ],
+        "recent": [
+          {
+            "direction": "Маврикий",
+            "channel": "Сайт",
+            "date": "2026-09-14",
+            "amount": 410000
+          },
+          {
+            "direction": "Китай, юг",
+            "channel": "Соцсети",
+            "date": "2026-09-13",
+            "amount": 265000
+          },
+          {
+            "direction": "Кольский, лето",
+            "channel": "Сайт",
+            "date": "2026-09-11",
+            "amount": 89000
+          }
+        ]
+      },
+      "in_progress": {
+        "count": 32,
+        "total_amount": 6900000,
+        "by_status": [
+          {
+            "status": "Новый лид",
+            "count": 12
+          },
+          {
+            "status": "Квалификация",
+            "count": 8
+          },
+          {
+            "status": "КП отправлено",
+            "count": 6
+          },
+          {
+            "status": "Переговоры / бронь",
+            "count": 4
+          },
+          {
+            "status": "Предоплата внесена",
+            "count": 2
+          }
+        ],
+        "by_channel": [
+          {
+            "channel": "Сайт",
+            "count": 22
+          },
+          {
+            "channel": "Соцсети",
+            "count": 6
+          },
+          {
+            "channel": "Чаты/звонки",
+            "count": 4
+          }
+        ]
+      }
+    }
+  },
+  "alerts": [
+    {
+      "id": "1",
+      "severity": "critical",
+      "title": "CPL по Директу выше нормы",
+      "description": "1 885 ₽ за месяц, детали — в разделе Лиды",
+      "date": "2026-09-16T09:40:00+03:00"
+    },
+    {
+      "id": "2",
+      "severity": "warning",
+      "title": "Направление «Оман» — самый дорогой лид",
+      "description": "2 900 ₽ при среднем CPL 1 885 ₽",
+      "date": "2026-09-15T18:05:00+03:00"
+    },
+    {
+      "id": "3",
+      "severity": "info",
+      "title": "Опережаем темп плана",
+      "description": "На 5 пунктов выше ожидаемого на сегодня",
+      "date": "2026-09-15T12:00:00+03:00"
+    },
+    {
+      "id": "4",
+      "severity": "info",
+      "title": "Дневной план по лидам выполнен",
+      "description": "38 из 45",
+      "date": "2026-09-14T20:00:00+03:00"
+    },
+    {
+      "id": "5",
+      "severity": "info",
+      "title": "Данные из Битрикс24 обновлены",
+      "description": "Синхронизация прошла без ошибок",
+      "date": "2026-09-14T09:15:00+03:00"
+    }
+  ],
+  "profile": {
+    "user_name": "Катя",
+    "role": "Руководитель отдела маркетинга",
+    "data_sources": [
+      {
+        "name": "Яндекс.Директ",
+        "status": "connected",
+        "updated_minutes_ago": 5
+      },
+      {
+        "name": "Яндекс.Метрика",
+        "status": "connected",
+        "updated_minutes_ago": 5
+      },
+      {
+        "name": "Битрикс24",
+        "status": "connected",
+        "updated_minutes_ago": 12
+      }
+    ],
+    "bot_access": [
+      {
+        "name": "Катя",
+        "role": "Админ"
+      },
+      {
+        "name": "Оля",
+        "role": "Доступ"
+      }
+    ],
+    "alert_thresholds": [
+      {
+        "key": "cpl_over",
+        "name": "CPL выше нормы на",
+        "raw": 25,
+        "unit": "%"
+      },
+      {
+        "key": "plan_lag",
+        "name": "Отставание от темпа плана",
+        "raw": 5,
+        "unit": "п.п."
+      },
+      {
+        "key": "stagnation",
+        "name": "Сделка без движения дольше",
+        "raw": 2,
+        "unit": "× цикла"
+      },
+      {
+        "key": "no_leads",
+        "name": "Направление без лидов",
+        "raw": 3,
+        "unit": "дня"
+      }
+    ]
+  },
+  "current_month_label": "Сентябрь 2026",
+  "previous_month_label": "Август 2026",
+  "previous_month": {
+    "plan_fact": {
+      "fact": 3550000,
+      "plan": 5800000,
+      "percent": 61
+    },
+    "leads_plan_fact": {
+      "fact": 214,
+      "plan": 210,
+      "percent": 102
+    },
+    "funnel_summary": {
+      "leads": 214,
+      "sales": 16,
+      "revenue": 3550000,
+      "conversion_percent": 7.5,
+      "cycle_days": 17
+    },
+    "metrics": {
+      "cpl": 1799,
+      "cpo": 24062,
+      "avg_check": 221875,
+      "drr_percent": 10.8,
+      "romi_percent": 822,
+      "repeat_share_percent": 16
+    },
+    "ad_spend": {
+      "yandex_direct_spend": 385000,
+      "account_balance": 45000
+    }
+  }
+}

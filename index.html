@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Авентурамания — Дашборд маркетинга</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Golos+Text:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #F4F8FD;
+    --text: #241F22;
+    --text-dim: rgba(36,31,34,0.55);
+    --text-faint: rgba(36,31,34,0.42);
+    --border: rgba(36,31,34,0.08);
+    --border-strong: rgba(36,31,34,0.14);
+    --accent: #C2596B;
+    --accent-dark: #A24C5C;
+    --good: #4F8C6B;
+    --gold: #C79A46;
+    --blue: #7C93AE;
+    --card: #FFFFFF;
+    --blush-1: #F3D0D4;
+    --blush-2: #F8E4E6;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Golos Text', system-ui, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-dark); }
+  button { font-family: inherit; cursor: pointer; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding: 18px 16px 88px; gap: 12px; position: relative; }
+
+  /* header */
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 7px; }
+  .compass-icon { width: 22px; height: 22px; flex: 0 0 auto; }
+  .brand-name { font-family: 'Oswald', sans-serif; font-size: 10px; letter-spacing: 0.14em; color: var(--text-faint); text-transform: uppercase; }
+  .greet { text-align: right; }
+  .greet-hi { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; }
+  .greet-date { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+  .top-bar { display: flex; align-items: center; gap: 10px; }
+  .back-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; padding: 0; }
+  .top-title { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .top-sub { font-size: 10.5px; color: var(--text-faint); margin-top: 1px; }
+  .badge { background: var(--accent); color: #fff; font-family: 'Oswald', sans-serif; font-size: 10px; font-weight: 600; border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
+
+  /* pills / period switcher */
+  .pills { display: flex; gap: 7px; }
+  .pill { border: 1px solid var(--border-strong); border-radius: 999px; padding: 6px 12px; font-family: 'Oswald', sans-serif; background: #fff;
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  /* level tabs (Лиды/Сделки) */
+  .level-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border-strong); }
+  .level-tab { font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text-faint);
+    padding-bottom: 8px; background: none; border: none; }
+  .level-tab.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--accent); margin-bottom: -1px; }
+
+  /* toggle-wrap (secondary switch) */
+  .toggle-wrap { display: flex; background: #fff; border-radius: 11px; padding: 3px; border: 1px solid var(--border); }
+  .toggle-opt { flex: 1; text-align: center; padding: 8px 0; font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--text-dim); border-radius: 8px; background: none; border: none; }
+  .toggle-opt.active { background: var(--accent); color: #fff; font-weight: 600; }
+
+  /* cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 13px 14px; }
+  .hero-blush { background: linear-gradient(150deg, var(--blush-1) 0%, var(--blush-2) 100%); border: none; }
+  .eyebrow { font-family: 'Oswald', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 9px; }
+  .eyebrow.muted { color: var(--blue); }
+  .hero-row { display: flex; align-items: flex-end; justify-content: space-between; }
+  .hero-pct { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 40px; line-height: 1; }
+  .hero-nums { text-align: right; font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+  .hero-nums b { color: var(--text); font-weight: 600; }
+  .track { position: relative; height: 8px; border-radius: 5px; background: rgba(36,31,34,0.1); margin-top: 12px; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--accent); }
+  .pace-marker { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--text); opacity: 0.3; }
+  .foot-note { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11.5px; }
+  .foot-note.good { color: var(--good); }
+  .foot-note.bad { color: var(--accent-dark); }
+
+  /* funnel route */
+  .route-row { display: flex; align-items: flex-start; justify-content: space-between; }
+  .rnode { text-align: center; flex: 1; }
+  .rdot { width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid #B7D3C4; margin: 0 auto 6px; }
+  .rval { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14px; }
+  .rlabel { font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .rconv { font-size: 9px; color: var(--blue); font-weight: 600; margin-top: 3px; }
+
+  /* metrics grid */
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+  .mcard { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 9px; position: relative; }
+  .mlabel { font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.2; min-height: 22px; }
+  .mval { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; margin-top: 3px; }
+  .mdelta { font-size: 9px; margin-top: 3px; color: var(--blue); line-height: 1.25; display: flex; align-items: center; gap: 3px; }
+  .mdelta.good { color: var(--good); }
+
+  /* ad spend */
+  /* previous month */
+  .prevmonth-link { background: none; border: none; color: var(--blue); font-size: 11.5px; font-weight: 500; padding: 0; text-align: left; }
+  .prevmonth-link:hover { color: var(--accent); }
+  .prevmonth-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #EFF2F6; border: 1px solid var(--border-strong);
+    border-radius: 12px; padding: 9px 12px; font-size: 11.5px; color: var(--text-dim); }
+  .prevmonth-back { background: #fff; border: 1px solid var(--border-strong); border-radius: 999px; padding: 5px 11px; font-family: 'Oswald', sans-serif;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text); flex: 0 0 auto; }
+
+  /* editable profile forms */
+  .edit-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .edit-row:last-child { border-bottom: none; }
+  .edit-row-label { font-size: 12px; color: var(--text-dim); flex: 1; }
+  .edit-row-input-wrap { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+  .edit-input { width: 92px; text-align: right; border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 8px; font-family: 'Oswald', sans-serif;
+    font-weight: 600; font-size: 13px; color: var(--text); background: #FBFCFE; }
+  .edit-input:focus { outline: none; border-color: var(--accent); }
+  .edit-unit { font-size: 10.5px; color: var(--text-faint); white-space: nowrap; }
+  .save-btn { width: 100%; margin-top: 10px; border: none; background: var(--accent); color: #fff; border-radius: 10px; padding: 10px 0;
+    font-family: 'Oswald', sans-serif; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .save-btn:active { background: var(--accent-dark); }
+  .save-note { font-size: 10.5px; color: var(--good); margin-top: 7px; text-align: center; opacity: 0; transition: opacity 0.2s; }
+  .save-note.show { opacity: 1; }
+  .plan-hint { font-size: 10.5px; color: var(--text-faint); margin-top: 8px; line-height: 1.4; }
+
+  /* progress rings */
+  .ring-row { display: flex; gap: 10px; }
+  .ring-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .ring-wrap { position: relative; width: 100px; height: 100px; }
+  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: rgba(36,31,34,0.08); }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.4s ease; }
+  .ring-fill.over { stroke: var(--good); }
+  .ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .ring-pct-val { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 19px; line-height: 1; }
+  .ring-label { font-family: 'Oswald', sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); font-weight: 600; }
+  .ring-sub { font-size: 9.5px; color: var(--text-faint); text-align: center; line-height: 1.3; }
+
+  .spend-row { display: flex; gap: 8px; }
+  .spend-chip { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 10px 11px; }
+  .spend-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; }
+  .spend-label { font-size: 9.5px; color: var(--text-faint); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .spend-chip.warn { background: #FBEFF0; border-color: rgba(194,89,107,0.25); }
+
+  /* alert-top card on home */
+  .alert-top { border-radius: 14px; padding: 12px 13px; display: flex; align-items: center; gap: 10px; cursor: pointer; border: none; width: 100%; text-align: left; }
+  .alert-top.critical { background: #FBEFF0; border: 1px solid rgba(194,89,107,0.25); }
+  .alert-top.warning { background: #FBF4E3; border: 1px solid rgba(199,154,70,0.3); }
+  .alert-top.info { background: #EEF4F0; border: 1px solid rgba(79,140,107,0.25); }
+  .alert-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .alert-icon.critical { background: var(--accent); }
+  .alert-icon.warning { background: var(--gold); }
+  .alert-icon.info { background: var(--good); }
+  .alert-top-title { font-size: 12.5px; font-weight: 600; }
+  .alert-top-desc { font-size: 10.5px; color: var(--text-dim); margin-top: 1px; }
+
+  /* channel / source lists */
+  .src-list, .chan-list, .deal-list { display: flex; flex-direction: column; }
+  .src-row, .chan-row, .deal-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .src-row:last-child, .chan-row:last-child, .deal-row:last-child { border-bottom: none; }
+  .src-icon, .chan-icon, .deal-icon { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .src-body, .chan-body, .deal-body { flex: 1; min-width: 0; }
+  .src-name, .chan-name, .deal-name { font-size: 12.5px; font-weight: 600; }
+  .src-sub, .chan-sub, .deal-sub { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
+  .src-bar-track { height: 4px; border-radius: 3px; background: rgba(36,31,34,0.08); margin-top: 5px; }
+  .src-bar-fill { height: 4px; border-radius: 3px; background: var(--accent); }
+  .src-right, .chan-right { text-align: right; flex: 0 0 auto; }
+  .src-val, .deal-amt { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14px; }
+  .src-share { font-size: 9.5px; color: var(--text-faint); margin-top: 1px; }
+
+  /* directions table */
+  .col-head { display: flex; align-items: center; gap: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-strong); margin-bottom: 2px; }
+  .col-head-name { flex: 1; font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint); }
+  .col-head-num { font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint); width: 46px; text-align: right; }
+  .dir-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .dir-row:last-child { border-bottom: none; }
+  .dir-name { flex: 1; font-size: 12px; font-weight: 500; }
+  .dir-num { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; width: 46px; text-align: right; }
+  .dir-num.muted { font-family: 'Golos Text', sans-serif; font-weight: 400; font-size: 10.5px; color: var(--text-faint); }
+  .badge-real { color: var(--good); font-size: 8px; margin-left: 4px; }
+
+  /* stage funnel (deals) */
+  .sum-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .sum-val { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; }
+  .sum-sub { font-size: 11px; color: var(--text-dim); text-align: right; }
+  .stage-list { display: flex; flex-direction: column; gap: 9px; }
+  .stage-head { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px; }
+  .stage-name { font-weight: 500; }
+  .stage-count { font-family: 'Oswald', sans-serif; font-weight: 600; }
+  .stage-bar-track { height: 8px; border-radius: 5px; background: rgba(124,147,174,0.14); }
+  .stage-bar-fill { height: 8px; border-radius: 5px; background: linear-gradient(90deg, var(--accent), #E3A0AE); }
+  .chan-chip-row { display: flex; gap: 8px; }
+  .chan-chip { flex: 1; background: #F0F4F9; border-radius: 12px; padding: 9px 8px; text-align: center; }
+  .chan-chip-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; }
+  .chan-chip-label { font-size: 9.5px; color: var(--text-dim); margin-top: 2px; }
+
+  /* note card */
+  .note-card { background: #F0F4F9; border: 1px solid rgba(124,147,174,0.2); border-radius: 14px; padding: 11px 13px; }
+  .note-tag { font-family: 'Oswald', sans-serif; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 5px; display: inline-block; }
+  .note-text { font-size: 11px; line-height: 1.4; }
+
+  /* alerts timeline */
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 6px; width: 0; border-left: 2px solid var(--border-strong); }
+  .tl-item { position: relative; padding-bottom: 16px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item[hidden] { display: none; }
+  .tl-dot { position: absolute; left: -20px; top: 3px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg); }
+  .tl-dot.critical { background: var(--accent); }
+  .tl-dot.warning { background: var(--gold); }
+  .tl-dot.info { background: var(--good); }
+  .tl-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 11px 13px; }
+  .tl-time { font-size: 10px; color: var(--text-faint); margin-bottom: 3px; }
+  .tl-title { font-size: 12.5px; font-weight: 600; }
+  .tl-title.critical { color: var(--accent-dark); }
+  .tl-desc { font-size: 11px; color: var(--text-dim); margin-top: 3px; line-height: 1.4; }
+  .tl-link { font-size: 10.5px; color: var(--accent); margin-top: 6px; font-weight: 600; background: none; border: none; padding: 0; }
+
+  /* profile */
+  .profile-card { background: linear-gradient(150deg, var(--blush-1) 0%, var(--blush-2) 100%); border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; flex: 0 0 auto; }
+  .profile-name { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14.5px; }
+  .profile-role { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .row:last-child { border-bottom: none; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); flex: 0 0 auto; }
+  .row-body { flex: 1; min-width: 0; }
+  .row-name { font-size: 12.5px; font-weight: 500; }
+  .row-sub { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
+  .row-chev { color: rgba(36,31,34,0.25); flex: 0 0 auto; }
+  .access-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 10px; color: #fff; flex: 0 0 auto; }
+  .access-role { font-size: 10px; color: var(--text-faint); }
+  .row-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; }
+
+  /* bottom nav */
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+    align-items: center; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); max-width: 480px; margin: 0 auto; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: rgba(36,31,34,0.32); background: none; border: none; padding: 4px 18px; }
+  .nav-item.active { color: var(--accent); }
+  .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0; }
+  .nav-item.active .nav-dot { opacity: 1; }
+
+  .screen { display: none; flex-direction: column; gap: 12px; }
+  .screen.active { display: flex; }
+  .subview { display: none; flex-direction: column; gap: 12px; }
+  .subview.active { display: flex; }
+
+  /* loading / error */
+  #loading, #load-error { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 80px 20px; }
+  #load-error { display: none; }
+  .spinner { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--border-strong); border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #load-error .retry-btn { margin-top: 4px; border: 1px solid var(--border-strong); background: #fff; border-radius: 999px; padding: 8px 18px;
+    font-family: 'Oswald', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <div style="font-size:12px;color:var(--text-dim);">Загружаем данные…</div>
+  </div>
+
+  <div id="load-error">
+    <div style="font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;">Не удалось загрузить данные</div>
+    <div style="font-size:12px;color:var(--text-dim);max-width:260px;">Проверьте соединение и попробуйте ещё раз — data.json не ответил.</div>
+    <button class="retry-btn" id="retry-btn">Повторить</button>
+  </div>
+
+  <div id="content" style="display:none;">
+
+    <!-- ===== HOME ===== -->
+    <section class="screen active" id="screen-home">
+      <div class="head-row">
+        <div class="brand">
+          <svg class="compass-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9.5" stroke="#C2596B" stroke-width="1.5"/>
+            <path d="M15.5 8.5 12.8 12.8 8.5 15.5 11.2 11.2 15.5 8.5Z" fill="#C2596B"/>
+          </svg>
+          <div class="brand-name">Авентурамания</div>
+        </div>
+        <div class="greet">
+          <div class="greet-hi">Привет, Катя</div>
+          <div class="greet-date" id="home-date">—</div>
+        </div>
+      </div>
+
+      <div class="pills" data-period-group id="home-period-pills"></div>
+
+      <div class="prevmonth-banner" id="prevmonth-banner" hidden>
+        <span id="prevmonth-banner-text">—</span>
+        <button class="prevmonth-back" id="prevmonth-back">Вернуться к текущему</button>
+      </div>
+      <button class="prevmonth-link" id="prevmonth-link">Показать прошлый месяц →</button>
+
+      <button class="alert-top" id="home-alert-top" hidden></button>
+
+      <div class="card hero-blush">
+        <div class="eyebrow">План периода <span id="home-plan-label" style="opacity:.55;font-weight:400;"></span></div>
+        <div class="hero-row">
+          <div class="hero-pct" id="home-percent">—</div>
+          <div class="hero-nums">факт <b id="home-fact">—</b><br>план <b id="home-plan">—</b></div>
+        </div>
+        <div class="track"><div class="fill" id="home-fill"></div><div class="pace-marker" id="home-pace"></div></div>
+        <div class="foot-note" id="home-pace-note"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow muted">Выполнение плана</div>
+        <div class="ring-row" id="home-rings"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow muted">Воронка — путь клиента</div>
+        <div class="route-row">
+          <div class="rnode"><div class="rdot"></div><div class="rval" id="home-leads">—</div><div class="rlabel">Лиды</div></div>
+          <div class="rnode"><div class="rdot"></div><div class="rval" id="home-sales">—</div><div class="rlabel">Продажи</div><div class="rconv" id="home-conv">—</div></div>
+          <div class="rnode"><div class="rdot"></div><div class="rval" id="home-revenue">—</div><div class="rlabel">Выручка</div><div class="rconv" id="home-cycle">—</div></div>
+        </div>
+      </div>
+
+      <div class="metrics" id="home-metrics"></div>
+
+      <div class="card">
+        <div class="eyebrow muted">Расходы на рекламу</div>
+        <div class="spend-row">
+          <div class="spend-chip">
+            <div class="spend-val" id="home-spend">—</div>
+            <div class="spend-label">Яндекс.Директ, период</div>
+          </div>
+          <div class="spend-chip" id="home-balance-chip">
+            <div class="spend-val" id="home-balance">—</div>
+            <div class="spend-label">Остаток кабинета</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FUNNEL (Лиды / Сделки) ===== -->
+    <section class="screen" id="screen-funnel">
+      <div class="top-bar">
+        <button class="back-btn" data-go="home">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3.5 5 8l5 4.5" stroke="#241F22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div>
+          <div class="top-title">Воронка</div>
+          <div class="top-sub" id="funnel-sub">—</div>
+        </div>
+      </div>
+
+      <div class="pills" data-period-group></div>
+
+      <div class="level-tabs">
+        <button class="level-tab active" data-level="leads">Лиды</button>
+        <button class="level-tab" data-level="deals">Сделки</button>
+      </div>
+
+      <!-- Лиды subview -->
+      <div class="subview active" id="level-leads">
+        <div class="toggle-wrap">
+          <button class="toggle-opt active" data-leadview="channels">По каналам</button>
+          <button class="toggle-opt" data-leadview="directions">По направлениям</button>
+        </div>
+
+        <div class="subview active" id="leadview-channels">
+          <div class="card">
+            <div class="eyebrow muted">Весь путь</div>
+            <div class="route-row">
+              <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-leads">—</div><div class="rlabel">Лиды</div></div>
+              <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-sales">—</div><div class="rlabel">Продажи</div><div class="rconv" id="lf-conv">—</div></div>
+              <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-revenue">—</div><div class="rlabel">Выручка</div><div class="rconv" id="lf-cpo">—</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Источники лидов</div>
+            <div class="src-list" id="channel-list"></div>
+          </div>
+        </div>
+
+        <div class="subview" id="leadview-directions">
+          <div class="card">
+            <div class="eyebrow" id="dir-count-label">Направления</div>
+            <div class="col-head">
+              <div class="col-head-name">Направление</div>
+              <div class="col-head-num">Лиды</div>
+              <div class="col-head-num">CPL</div>
+              <div class="col-head-num">Цикл</div>
+            </div>
+            <div class="dir-list" id="direction-list"></div>
+          </div>
+          <div class="note-card">
+            <div class="note-tag">Из отчёта <span style="color:var(--good);">● точно · остальное — прикидка</span></div>
+            <div class="note-text">Цикл сделки — от первого лида до оплаты. Разброс по направлениям большой.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Сделки subview -->
+      <div class="subview" id="level-deals">
+        <div class="toggle-wrap">
+          <button class="toggle-opt active" data-dealview="paid">Оплаченные</button>
+          <button class="toggle-opt" data-dealview="in_progress">В работе, эта неделя</button>
+        </div>
+
+        <div class="subview active" id="dealview-paid">
+          <div class="card">
+            <div class="eyebrow muted">Оплачено за период</div>
+            <div class="sum-row">
+              <div class="sum-val" id="paid-count">—</div>
+              <div class="sum-sub">на сумму<br><b style="color:var(--text);" id="paid-amount">—</b></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">По каналам</div>
+            <div class="chan-chip-row" id="paid-channels"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Последние оплаты</div>
+            <div class="deal-list" id="paid-recent"></div>
+          </div>
+        </div>
+
+        <div class="subview" id="dealview-in_progress">
+          <div class="card">
+            <div class="eyebrow muted">В воронке сейчас</div>
+            <div class="sum-row">
+              <div class="sum-val" id="prog-count">—</div>
+              <div class="sum-sub">на сумму<br><b style="color:var(--text);" id="prog-amount">—</b></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">По статусам</div>
+            <div class="stage-list" id="prog-stages"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">По каналам</div>
+            <div class="chan-chip-row" id="prog-channels"></div>
+          </div>
+          <div class="note-card">
+            <div class="note-tag">Названия статусов — placeholder</div>
+            <div class="note-text">Условные стадии. После подключения Битрикс24 здесь появятся реальные статусы вашей воронки.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ALERTS ===== -->
+    <section class="screen" id="screen-alerts">
+      <div class="top-bar">
+        <button class="back-btn" data-go="home">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3.5 5 8l5 4.5" stroke="#241F22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="top-title">Алерты</div>
+          <div class="badge" id="alerts-badge">—</div>
+        </div>
+      </div>
+
+      <div class="pills" id="alert-filters">
+        <button class="pill active" data-filter="all">Все</button>
+        <button class="pill" data-filter="critical">Критично</button>
+        <button class="pill" data-filter="warning">Внимание</button>
+        <button class="pill" data-filter="info">Инфо</button>
+      </div>
+
+      <div class="timeline" id="alerts-timeline"></div>
+    </section>
+
+    <!-- ===== PROFILE ===== -->
+    <section class="screen" id="screen-profile">
+      <div class="top-bar">
+        <button class="back-btn" data-go="home">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3.5 5 8l5 4.5" stroke="#241F22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="top-title">Профиль</div>
+      </div>
+
+      <div class="profile-card">
+        <div class="avatar" id="profile-avatar">—</div>
+        <div>
+          <div class="profile-name" id="profile-name">—</div>
+          <div class="profile-role" id="profile-role">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow muted">Источники данных</div>
+        <div id="profile-sources"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow muted">Доступ к Клаве</div>
+        <div id="profile-access"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow muted">План месяца <span id="plan-month-label" style="opacity:.6;font-weight:400;"></span></div>
+        <div class="edit-row">
+          <div class="edit-row-label">План по выручке</div>
+          <div class="edit-row-input-wrap"><input class="edit-input" type="number" id="plan-revenue-input" inputmode="numeric"><span class="edit-unit">₽</span></div>
+        </div>
+        <div class="edit-row">
+          <div class="edit-row-label">План по лидам</div>
+          <div class="edit-row-input-wrap"><input class="edit-input" type="number" id="plan-leads-input" inputmode="numeric"><span class="edit-unit">шт.</span></div>
+        </div>
+        <button class="save-btn" id="plan-save-btn">Сохранить план</button>
+        <div class="save-note" id="plan-save-note">Сохранено</div>
+        <div class="plan-hint">Заводите заново в начале каждого месяца — прошлые месяцы не затрагиваются.</div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow muted">Пороги алертов</div>
+        <div id="profile-thresholds"></div>
+        <button class="save-btn" id="thresholds-save-btn">Сохранить пороги</button>
+        <div class="save-note" id="thresholds-save-note">Сохранено</div>
+      </div>
+    </section>
+
+  </div>
+
+  <nav class="nav" id="bottom-nav" style="display:none;">
+    <button class="nav-item active" data-go="home">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M3 8.5 10 3l7 5.5V17a1 1 0 0 1-1 1h-4v-5H8v5H4a1 1 0 0 1-1-1V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" data-go="funnel">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M3 4h14l-5 6.5V16l-4 1.5v-7L3 4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" data-go="alerts">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M6 8a4 4 0 0 1 8 0c0 3.2 1.2 4.4 1.5 5H4.5C4.8 12.4 6 11.2 6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.3 15.5a1.7 1.7 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" data-go="profile">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 17c1-3 3.7-4.5 6.5-4.5s5.5 1.5 6.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="nav-dot"></div>
+    </button>
+  </nav>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  try {
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+  } catch (e) { /* not running inside Telegram — fine for browser preview */ }
+
+  var STATE = {
+    data: null,
+    period: 'month',
+    screen: 'home',
+    leadView: 'channels',
+    dealLevel: 'leads',
+    dealView: 'paid',
+    alertFilter: 'all',
+    showPrevMonth: false
+  };
+
+  var OVERRIDES_KEY = 'avt_dashboard_overrides_v1';
+
+  function loadOverrides() {
+    try {
+      var raw = localStorage.getItem(OVERRIDES_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveOverrides(patch) {
+    var current = loadOverrides();
+    var merged = Object.assign({}, current, patch);
+    try { localStorage.setItem(OVERRIDES_KEY, JSON.stringify(merged)); } catch (e) { /* storage unavailable — edits stay in-memory for this session */ }
+    return merged;
+  }
+
+  function recomputePlanFact(periodData) {
+    var pf = periodData.plan_fact;
+    pf.percent = pf.plan ? Math.round(pf.fact / pf.plan * 100) : 0;
+    pf.pace_delta = pf.percent - pf.pace_expected_percent;
+    var lf = periodData.leads_plan_fact;
+    lf.percent = lf.plan ? Math.round(lf.fact / lf.plan * 100) : 0;
+  }
+
+  function applyOverrides() {
+    var ov = loadOverrides();
+    if (ov.plan) {
+      ['month', 'custom'].forEach(function (p) {
+        var d = STATE.data.home[p];
+        if (!d) return;
+        if (ov.plan.revenue_plan) d.plan_fact.plan = ov.plan.revenue_plan;
+        if (ov.plan.leads_plan) d.leads_plan_fact.plan = ov.plan.leads_plan;
+        recomputePlanFact(d);
+      });
+    }
+    if (ov.thresholds) {
+      STATE.data.profile.alert_thresholds.forEach(function (t) {
+        if (ov.thresholds[t.key] !== undefined) t.raw = ov.thresholds[t.key];
+      });
+    }
+  }
+
+  var fmtRUB = new Intl.NumberFormat('ru-RU');
+  function rub(n) { return fmtRUB.format(Math.round(n || 0)) + ' ₽'; }
+  function num(n) { return fmtRUB.format(Math.round(n || 0)); }
+  function compact(n) {
+    n = n || 0;
+    if (n >= 1000000) return (n / 1000000).toFixed(2).replace(/\.00$/, '').replace('.', ',') + 'М';
+    if (n >= 1000) return (n / 1000).toFixed(1).replace('.', ',') + 'К';
+    return String(n);
+  }
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function severityIconPath() {
+    return '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 3 2 17h16L10 3Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8.5v3.2M10 14.2v.1" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  }
+
+  function loadData() {
+    document.getElementById('loading').style.display = 'flex';
+    document.getElementById('load-error').style.display = 'none';
+    document.getElementById('content').style.display = 'none';
+    document.getElementById('bottom-nav').style.display = 'none';
+
+    fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('bad status ' + r.status); return r.json(); })
+      .then(function (json) {
+        STATE.data = json;
+        STATE.period = json.default_period || 'month';
+        applyOverrides();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('bottom-nav').style.display = 'flex';
+        renderPeriodPills();
+        renderAll();
+      })
+      .catch(function (err) {
+        console.error('data.json load failed:', err);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('load-error').style.display = 'flex';
+      });
+  }
+
+  function renderPeriodPills() {
+    var groups = document.querySelectorAll('[data-period-group]');
+    groups.forEach(function (group) {
+      group.innerHTML = '';
+      STATE.data.periods.forEach(function (p) {
+        var btn = el('button', 'pill' + (p.id === STATE.period ? ' active' : ''), p.label);
+        btn.setAttribute('data-period', p.id);
+        btn.addEventListener('click', function () {
+          STATE.period = p.id;
+          document.querySelectorAll('[data-period-group] .pill').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-period') === p.id);
+          });
+          renderAll();
+        });
+        group.appendChild(btn);
+      });
+    });
+  }
+
+  function renderAll() {
+    renderHome();
+    renderFunnel();
+    renderAlerts();
+    renderProfile();
+  }
+
+  // ---------- HOME ----------
+  function renderHome() {
+    var isPrev = STATE.showPrevMonth;
+    var d = isPrev ? STATE.data.previous_month : STATE.data.home[STATE.period];
+    if (!d) return;
+
+    document.getElementById('home-period-pills').style.display = isPrev ? 'none' : 'flex';
+    document.getElementById('prevmonth-link').hidden = isPrev;
+    document.getElementById('prevmonth-banner').hidden = !isPrev;
+    if (isPrev) document.getElementById('prevmonth-banner-text').textContent = 'Прошлый месяц · ' + STATE.data.previous_month_label;
+
+    var periodLabel = isPrev ? STATE.data.previous_month_label : ((STATE.data.periods.find(function (p) { return p.id === STATE.period; }) || {}).label || '');
+    document.getElementById('home-date').textContent = 'Обновлено · ' + fmtNow();
+    document.getElementById('home-plan-label').textContent = '· ' + periodLabel.toLowerCase();
+    document.getElementById('home-percent').textContent = d.plan_fact.percent + '%';
+    document.getElementById('home-fact').textContent = compact(d.plan_fact.fact) + ' ₽';
+    document.getElementById('home-plan').textContent = compact(d.plan_fact.plan) + ' ₽';
+    document.getElementById('home-fill').style.width = Math.min(100, d.plan_fact.percent) + '%';
+
+    var paceMarker = document.getElementById('home-pace');
+    var note = document.getElementById('home-pace-note');
+    if (isPrev || d.plan_fact.pace_expected_percent === undefined) {
+      paceMarker.hidden = true;
+      note.hidden = true;
+    } else {
+      paceMarker.hidden = false;
+      note.hidden = false;
+      paceMarker.style.left = Math.min(100, d.plan_fact.pace_expected_percent) + '%';
+      var ahead = d.plan_fact.pace_delta >= 0;
+      note.className = 'foot-note ' + (ahead ? 'good' : 'bad');
+      note.innerHTML = (ahead
+        ? '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10.5 8 14.5 16 6" stroke="#4F8C6B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3 2 17h16L10 3Z" stroke="#A24C5C" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8.5v3.2M10 14.2v.1" stroke="#A24C5C" stroke-width="1.6" stroke-linecap="round"/></svg>')
+        + (ahead ? 'Опережаем темп (' : 'Отстаём от темпа (') + d.plan_fact.pace_expected_percent + '%) на ' + Math.abs(d.plan_fact.pace_delta) + ' пункт' + pluralPt(Math.abs(d.plan_fact.pace_delta));
+    }
+
+    renderRings(d);
+
+    document.getElementById('home-leads').textContent = compact(d.funnel_summary.leads);
+    document.getElementById('home-sales').textContent = num(d.funnel_summary.sales);
+    document.getElementById('home-revenue').textContent = compact(d.funnel_summary.revenue);
+    document.getElementById('home-conv').textContent = 'конв. ' + String(d.funnel_summary.conversion_percent).replace('.', ',') + '%';
+    document.getElementById('home-cycle').textContent = 'цикл ' + d.funnel_summary.cycle_days + ' дн.';
+
+    var metricDefs = [
+      { label: 'CPL', val: rub(d.metrics.cpl), sub: compact(d.funnel_summary.leads) + ' лидов' },
+      { label: 'Стоимость клиента (CPO)', val: rub(d.metrics.cpo), sub: num(d.funnel_summary.sales) + ' ' + pluralWord(d.funnel_summary.sales, 'продажа', 'продажи', 'продаж') },
+      { label: 'Средний чек', val: rub(d.metrics.avg_check), sub: 'выручка/продажи' },
+      { label: 'ДРР', val: String(d.metrics.drr_percent).replace('.', ',') + '%', sub: 'затраты/выручка' },
+      { label: 'ROMI', val: d.metrics.romi_percent + '%', sub: '×' + Math.round(d.funnel_summary.revenue / d.ad_spend.yandex_direct_spend) + ' к затратам', good: true },
+      { label: 'Повторные продажи', val: d.metrics.repeat_share_percent + '%', sub: 'доля от всех' }
+    ];
+    var grid = document.getElementById('home-metrics');
+    grid.innerHTML = '';
+    metricDefs.forEach(function (m) {
+      var c = el('div', 'mcard');
+      c.innerHTML = '<div class="mlabel">' + m.label + '</div><div class="mval">' + m.val + '</div><div class="mdelta' + (m.good ? ' good' : '') + '">' + m.sub + '</div>';
+      grid.appendChild(c);
+    });
+
+    document.getElementById('home-spend').textContent = compact(d.ad_spend.yandex_direct_spend) + ' ₽';
+    var balanceChip = document.getElementById('home-balance-chip');
+    document.getElementById('home-balance').textContent = compact(d.ad_spend.account_balance) + ' ₽';
+    balanceChip.classList.toggle('warn', d.ad_spend.account_balance < 20000);
+
+    var topAlertBtn = document.getElementById('home-alert-top');
+    if (d.top_alert) {
+      topAlertBtn.hidden = false;
+      topAlertBtn.className = 'alert-top ' + d.top_alert.severity;
+      topAlertBtn.innerHTML = '<div class="alert-icon ' + d.top_alert.severity + '">' + severityIconPath() + '</div>' +
+        '<div><div class="alert-top-title">' + d.top_alert.title + '</div><div class="alert-top-desc">' + d.top_alert.description + '</div></div>';
+      topAlertBtn.onclick = function () { goTo('alerts'); };
+    } else {
+      topAlertBtn.hidden = true;
+    }
+  }
+
+  function ringSvg(percent) {
+    var size = 100, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+    var clamped = Math.max(0, Math.min(100, percent));
+    var offset = c - (clamped / 100) * c;
+    var over = percent >= 100;
+    return '<svg viewBox="0 0 ' + size + ' ' + size + '">' +
+      '<circle class="ring-track" cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" stroke-width="' + stroke + '"/>' +
+      '<circle class="ring-fill' + (over ? ' over' : '') + '" cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" stroke-width="' + stroke + '" stroke-dasharray="' + c + '" stroke-dashoffset="' + offset + '"/>' +
+      '</svg>';
+  }
+
+  function renderRings(d) {
+    var wrap = document.getElementById('home-rings');
+    var leadsP = d.leads_plan_fact, revP = d.plan_fact;
+    var items = [
+      { label: 'Лиды', percent: leadsP.percent, sub: num(leadsP.fact) + ' из ' + num(leadsP.plan) },
+      { label: 'Выручка', percent: revP.percent, sub: compact(revP.fact) + ' из ' + compact(revP.plan) + ' ₽' }
+    ];
+    wrap.innerHTML = '';
+    items.forEach(function (it) {
+      var cell = el('div', 'ring-item');
+      cell.innerHTML = '<div class="ring-wrap">' + ringSvg(it.percent) +
+        '<div class="ring-pct"><div class="ring-pct-val">' + it.percent + '%</div></div></div>' +
+        '<div class="ring-label">' + it.label + '</div>' +
+        '<div class="ring-sub">' + it.sub + '</div>';
+      wrap.appendChild(cell);
+    });
+  }
+
+  function pluralWord(n, one, few, many) {
+    var mod10 = n % 10, mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return one;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+    return many;
+  }
+
+  function pluralPt(n) {
+    var mod10 = n % 10, mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return '';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'а';
+    return 'ов';
+  }
+
+  function fmtNow() {
+    var d = new Date();
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) + ' · ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ---------- FUNNEL (Лиды / Сделки) ----------
+  function renderFunnel() {
+    var periodLabel = (STATE.data.periods.find(function (p) { return p.id === STATE.period; }) || {}).label || '';
+    document.getElementById('funnel-sub').textContent = STATE.dealLevel === 'leads' ? 'Лиды · ' + periodLabel.toLowerCase() : 'Статусы из Битрикс24';
+
+    var lf = STATE.data.leads_funnel[STATE.period];
+    var home = STATE.data.home[STATE.period];
+    if (lf && home) {
+      document.getElementById('lf-leads').textContent = compact(home.funnel_summary.leads);
+      document.getElementById('lf-sales').textContent = num(home.funnel_summary.sales);
+      document.getElementById('lf-revenue').textContent = compact(home.funnel_summary.revenue);
+      document.getElementById('lf-conv').textContent = String(home.funnel_summary.conversion_percent).replace('.', ',') + '%';
+      document.getElementById('lf-cpo').textContent = 'CPO ' + compact(home.metrics.cpo);
+
+      var chanWrap = document.getElementById('channel-list');
+      chanWrap.innerHTML = '';
+      var icons = {
+        site: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5.5 10 10l7-4.5M3 5.5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9M3 5.5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1" stroke="#7C93AE" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+        social: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M6 9a4 4 0 1 1 8 0c0 1.5-1 2-1 3.5H7C7 11 6 10.5 6 9Z" stroke="#C2596B" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.3 14.5a1.7 1.7 0 0 0 3.4 0" stroke="#C2596B" stroke-width="1.6" stroke-linecap="round"/></svg>',
+        calls: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 4h12v9H8l-4 3V4Z" stroke="#C79A46" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+        reactivation: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 1 1 2 4.5" stroke="#4F8C6B" stroke-width="1.6" stroke-linecap="round"/><path d="M4 14v-3.5H7.5" stroke="#4F8C6B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      };
+      var bg = { site: '#EAF0F6', social: '#FBEFF0', calls: '#F3EFE3', reactivation: '#EEF2E9' };
+      lf.by_channel.forEach(function (c) {
+        var row = el('div', 'src-row');
+        row.innerHTML = '<div class="src-icon" style="background:' + bg[c.channel] + ';">' + icons[c.channel] + '</div>' +
+          '<div class="src-body"><div class="src-name">' + c.name + '</div><div class="src-bar-track"><div class="src-bar-fill" style="width:' + c.share_percent + '%;"></div></div></div>' +
+          '<div class="src-right"><div class="src-val">' + num(c.leads) + '</div><div class="src-share">' + c.share_percent + '%</div></div>';
+        chanWrap.appendChild(row);
+      });
+
+      document.getElementById('dir-count-label').textContent = lf.by_direction.length + ' направлений · ' + compact(home.funnel_summary.leads) + ' лидов всего';
+      var dirWrap = document.getElementById('direction-list');
+      dirWrap.innerHTML = '';
+      lf.by_direction.slice().sort(function (a, b) { return b.leads - a.leads; }).forEach(function (dRow) {
+        var row = el('div', 'dir-row');
+        row.innerHTML = '<div class="dir-name">' + dRow.direction + (dRow.is_exact ? '<span class="badge-real">●</span>' : '') + '</div>' +
+          '<div class="dir-num">' + num(dRow.leads) + '</div>' +
+          '<div class="dir-num muted">' + rub(dRow.cpl) + '</div>' +
+          '<div class="dir-num muted">' + dRow.cycle_days + ' дн</div>';
+        dirWrap.appendChild(row);
+      });
+    }
+
+    var deals = STATE.data.deals[STATE.period];
+    if (deals) {
+      var paid = deals.paid;
+      document.getElementById('paid-count').textContent = num(paid.count) + ' сделок';
+      document.getElementById('paid-amount').textContent = compact(paid.total_amount) + ' ₽';
+      var paidChanWrap = document.getElementById('paid-channels');
+      paidChanWrap.innerHTML = '';
+      paid.by_channel.forEach(function (c) {
+        var chip = el('div', 'chan-chip', '<div class="chan-chip-val">' + num(c.count) + '</div><div class="chan-chip-label">' + c.channel + '</div>');
+        paidChanWrap.appendChild(chip);
+      });
+      var recentWrap = document.getElementById('paid-recent');
+      recentWrap.innerHTML = '';
+      paid.recent.forEach(function (r) {
+        var row = el('div', 'deal-row');
+        row.innerHTML = '<div class="deal-icon" style="background:#FBEFF0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 16 8 8l4 4 4-8" stroke="#C2596B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+          '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">' + r.channel + ' · ' + fmtDateShort(r.date) + '</div></div>' +
+          '<div class="deal-amt">' + rub(r.amount) + '</div>';
+        recentWrap.appendChild(row);
+      });
+
+      var prog = deals.in_progress;
+      document.getElementById('prog-count').textContent = num(prog.count) + ' сделки';
+      document.getElementById('prog-amount').textContent = '≈ ' + compact(prog.total_amount) + ' ₽';
+      var stageWrap = document.getElementById('prog-stages');
+      stageWrap.innerHTML = '';
+      var maxCount = Math.max.apply(null, prog.by_status.map(function (s) { return s.count; }));
+      prog.by_status.forEach(function (s) {
+        var row = el('div', 'stage-row');
+        row.innerHTML = '<div class="stage-head"><span class="stage-name">' + s.status + '</span><span class="stage-count">' + s.count + '</span></div>' +
+          '<div class="stage-bar-track"><div class="stage-bar-fill" style="width:' + Math.round(s.count / maxCount * 100) + '%;"></div></div>';
+        stageWrap.appendChild(row);
+      });
+      var progChanWrap = document.getElementById('prog-channels');
+      progChanWrap.innerHTML = '';
+      prog.by_channel.forEach(function (c) {
+        var chip = el('div', 'chan-chip', '<div class="chan-chip-val">' + num(c.count) + '</div><div class="chan-chip-label">' + c.channel + '</div>');
+        progChanWrap.appendChild(chip);
+      });
+    }
+  }
+
+  function fmtDateShort(iso) {
+    var d = new Date(iso + 'T00:00:00');
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+  }
+
+  // ---------- ALERTS ----------
+  function renderAlerts() {
+    var alerts = STATE.data.alerts || [];
+    var critCount = alerts.filter(function (a) { return a.severity === 'critical' || a.severity === 'warning'; }).length;
+    document.getElementById('alerts-badge').textContent = critCount + ' нов' + (critCount === 1 ? 'ый' : 'ых');
+
+    var wrap = document.getElementById('alerts-timeline');
+    wrap.innerHTML = '';
+    alerts.forEach(function (a) {
+      var item = el('div', 'tl-item');
+      item.setAttribute('data-severity', a.severity);
+      item.hidden = STATE.alertFilter !== 'all' && STATE.alertFilter !== a.severity;
+      item.innerHTML = '<div class="tl-dot ' + a.severity + '"></div>' +
+        '<div class="tl-card"><div class="tl-time">' + fmtRelative(a.date) + '</div>' +
+        '<div class="tl-title ' + (a.severity === 'critical' ? 'critical' : '') + '">' + a.title + '</div>' +
+        '<div class="tl-desc">' + a.description + '</div></div>';
+      wrap.appendChild(item);
+    });
+  }
+
+  function fmtRelative(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ', ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ---------- PROFILE ----------
+  function renderProfile() {
+    var p = STATE.data.profile;
+    if (!p) return;
+    document.getElementById('profile-avatar').textContent = (p.user_name || '?').charAt(0);
+    document.getElementById('profile-name').textContent = p.user_name;
+    document.getElementById('profile-role').textContent = p.role;
+
+    var sourcesWrap = document.getElementById('profile-sources');
+    sourcesWrap.innerHTML = '';
+    p.data_sources.forEach(function (s) {
+      var row = el('div', 'row');
+      row.innerHTML = '<span class="status-dot"></span><div class="row-body"><div class="row-name">' + s.name + '</div>' +
+        '<div class="row-sub">Подключено · обновлено ' + s.updated_minutes_ago + ' мин назад</div></div>' +
+        '<svg class="row-chev" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 11 8l-5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      sourcesWrap.appendChild(row);
+    });
+
+    var accessWrap = document.getElementById('profile-access');
+    accessWrap.innerHTML = '';
+    var accessColors = ['#C2596B', '#C79A46', '#7C93AE', '#4F8C6B'];
+    p.bot_access.forEach(function (a, i) {
+      var row = el('div', 'row');
+      row.innerHTML = '<div class="access-avatar" style="background:' + accessColors[i % accessColors.length] + ';">' + a.name.charAt(0) + '</div>' +
+        '<div class="row-body"><div class="row-name">' + a.name + '</div></div><div class="access-role">' + a.role + '</div>';
+      accessWrap.appendChild(row);
+    });
+    var addRow = el('div', 'row', '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3.5v9M3.5 8h9" stroke="#241F22" stroke-width="1.6" stroke-linecap="round"/></svg><span style="font-size:11.5px;margin-left:6px;">Добавить</span>');
+    addRow.style.opacity = '0.6';
+    addRow.style.border = '1px dashed rgba(36,31,34,0.22)';
+    addRow.style.borderRadius = '10px';
+    addRow.style.padding = '9px 10px';
+    addRow.style.marginTop = '3px';
+    accessWrap.appendChild(addRow);
+
+    var thWrap = document.getElementById('profile-thresholds');
+    thWrap.innerHTML = '';
+    p.alert_thresholds.forEach(function (t) {
+      var row = el('div', 'edit-row');
+      row.innerHTML = '<div class="edit-row-label">' + t.name + '</div>' +
+        '<div class="edit-row-input-wrap"><input class="edit-input" type="number" data-threshold-key="' + t.key + '" value="' + t.raw + '" style="width:64px;"><span class="edit-unit">' + t.unit + '</span></div>';
+      thWrap.appendChild(row);
+    });
+
+    document.getElementById('plan-month-label').textContent = '· ' + STATE.data.current_month_label;
+    document.getElementById('plan-revenue-input').value = STATE.data.home.month.plan_fact.plan;
+    document.getElementById('plan-leads-input').value = STATE.data.home.month.leads_plan_fact.plan;
+  }
+
+  function flashSaveNote(id) {
+    var n = document.getElementById(id);
+    n.classList.add('show');
+    setTimeout(function () { n.classList.remove('show'); }, 1800);
+  }
+
+  // ---------- NAVIGATION ----------
+  function goTo(screen) {
+    STATE.screen = screen;
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('active', s.id === 'screen-' + screen); });
+    document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-go') === screen); });
+    if (screen === 'alerts') renderAlerts();
+  }
+
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () { goTo(b.getAttribute('data-go')); });
+  });
+
+  document.querySelectorAll('.level-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var level = b.getAttribute('data-level');
+      STATE.dealLevel = level;
+      document.querySelectorAll('.level-tab').forEach(function (t) { t.classList.toggle('active', t === b); });
+      document.getElementById('level-leads').classList.toggle('active', level === 'leads');
+      document.getElementById('level-deals').classList.toggle('active', level === 'deals');
+      renderFunnel();
+    });
+  });
+
+  document.querySelectorAll('[data-leadview]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var v = b.getAttribute('data-leadview');
+      STATE.leadView = v;
+      document.querySelectorAll('[data-leadview]').forEach(function (t) { t.classList.toggle('active', t === b); });
+      document.getElementById('leadview-channels').classList.toggle('active', v === 'channels');
+      document.getElementById('leadview-directions').classList.toggle('active', v === 'directions');
+    });
+  });
+
+  document.querySelectorAll('[data-dealview]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var v = b.getAttribute('data-dealview');
+      STATE.dealView = v;
+      document.querySelectorAll('[data-dealview]').forEach(function (t) { t.classList.toggle('active', t === b); });
+      document.getElementById('dealview-paid').classList.toggle('active', v === 'paid');
+      document.getElementById('dealview-in_progress').classList.toggle('active', v === 'in_progress');
+    });
+  });
+
+  document.querySelectorAll('#alert-filters .pill').forEach(function (b) {
+    b.addEventListener('click', function () {
+      STATE.alertFilter = b.getAttribute('data-filter');
+      document.querySelectorAll('#alert-filters .pill').forEach(function (t) { t.classList.toggle('active', t === b); });
+      renderAlerts();
+    });
+  });
+
+  document.getElementById('retry-btn').addEventListener('click', loadData);
+
+  document.getElementById('prevmonth-link').addEventListener('click', function () {
+    STATE.showPrevMonth = true;
+    renderHome();
+  });
+  document.getElementById('prevmonth-back').addEventListener('click', function () {
+    STATE.showPrevMonth = false;
+    renderHome();
+  });
+
+  document.getElementById('plan-save-btn').addEventListener('click', function () {
+    var revenue = parseInt(document.getElementById('plan-revenue-input').value, 10);
+    var leads = parseInt(document.getElementById('plan-leads-input').value, 10);
+    if (!revenue || !leads || revenue <= 0 || leads <= 0) return;
+    saveOverrides({ plan: { revenue_plan: revenue, leads_plan: leads } });
+    applyOverrides();
+    renderHome();
+    flashSaveNote('plan-save-note');
+  });
+
+  document.getElementById('thresholds-save-btn').addEventListener('click', function () {
+    var patch = {};
+    document.querySelectorAll('[data-threshold-key]').forEach(function (inp) {
+      var v = parseFloat(inp.value);
+      if (!isNaN(v)) patch[inp.getAttribute('data-threshold-key')] = v;
+    });
+    var current = loadOverrides();
+    var thresholds = Object.assign({}, current.thresholds || {}, patch);
+    saveOverrides({ thresholds: thresholds });
+    applyOverrides();
+    flashSaveNote('thresholds-save-note');
+  });
+
+  loadData();
+})();
+</script>
+</body>
+</html>
