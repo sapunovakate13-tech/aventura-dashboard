@@ -617,6 +617,11 @@
     if (n >= 1000) return (n / 1000).toFixed(1).replace('.', ',') + 'К';
     return String(n);
   }
+  // «—» для метрик без данных (нет плана / нет Директа), чтобы не торчало null/0
+  function has(v) { return v !== null && v !== undefined; }
+  function dashRub(n) { return has(n) ? rub(n) : '—'; }
+  function dashPct(n) { return has(n) ? String(n).replace('.', ',') + '%' : '—'; }
+  function dashMoney(n) { return has(n) ? compact(n) + ' ₽' : '—'; }
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
@@ -729,14 +734,15 @@
     var periodLabel = isPrev ? STATE.data.previous_month_label : ((STATE.data.periods.find(function (p) { return p.id === STATE.period; }) || {}).label || '');
     document.getElementById('home-date').textContent = 'Обновлено · ' + fmtNow();
     document.getElementById('home-plan-label').textContent = '· ' + periodLabel.toLowerCase();
-    document.getElementById('home-percent').textContent = d.plan_fact.percent + '%';
+    var hasPlan = has(d.plan_fact.plan) && d.plan_fact.plan > 0;
+    document.getElementById('home-percent').textContent = hasPlan ? d.plan_fact.percent + '%' : '—';
     document.getElementById('home-fact').textContent = compact(d.plan_fact.fact) + ' ₽';
-    document.getElementById('home-plan').textContent = compact(d.plan_fact.plan) + ' ₽';
-    document.getElementById('home-fill').style.width = Math.min(100, d.plan_fact.percent) + '%';
+    document.getElementById('home-plan').textContent = hasPlan ? compact(d.plan_fact.plan) + ' ₽' : 'не задан';
+    document.getElementById('home-fill').style.width = (hasPlan ? Math.min(100, d.plan_fact.percent) : 0) + '%';
 
     var paceMarker = document.getElementById('home-pace');
     var note = document.getElementById('home-pace-note');
-    if (isPrev || d.plan_fact.pace_expected_percent === undefined) {
+    if (isPrev || !hasPlan || d.plan_fact.pace_expected_percent === undefined) {
       paceMarker.hidden = true;
       note.hidden = true;
     } else {
@@ -759,13 +765,16 @@
     document.getElementById('home-conv').textContent = 'конв. ' + String(d.funnel_summary.conversion_percent).replace('.', ',') + '%';
     document.getElementById('home-cycle').textContent = 'цикл ' + d.funnel_summary.cycle_days + ' дн.';
 
+    var romiSub = (has(d.metrics.romi_percent) && d.ad_spend.yandex_direct_spend)
+      ? '×' + Math.round(d.funnel_summary.revenue / d.ad_spend.yandex_direct_spend) + ' к затратам'
+      : 'нет данных Директа';
     var metricDefs = [
-      { label: 'CPL', val: rub(d.metrics.cpl), sub: compact(d.funnel_summary.leads) + ' лидов' },
-      { label: 'Стоимость клиента (CPO)', val: rub(d.metrics.cpo), sub: num(d.funnel_summary.sales) + ' ' + pluralWord(d.funnel_summary.sales, 'продажа', 'продажи', 'продаж') },
-      { label: 'Средний чек', val: rub(d.metrics.avg_check), sub: 'выручка/продажи' },
-      { label: 'ДРР', val: String(d.metrics.drr_percent).replace('.', ',') + '%', sub: 'затраты/выручка' },
-      { label: 'ROMI', val: d.metrics.romi_percent + '%', sub: '×' + Math.round(d.funnel_summary.revenue / d.ad_spend.yandex_direct_spend) + ' к затратам', good: true },
-      { label: 'Повторные продажи', val: d.metrics.repeat_share_percent + '%', sub: 'доля от всех' }
+      { label: 'CPL', val: dashRub(d.metrics.cpl), sub: compact(d.funnel_summary.leads) + ' лидов' },
+      { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: num(d.funnel_summary.sales) + ' ' + pluralWord(d.funnel_summary.sales, 'продажа', 'продажи', 'продаж') },
+      { label: 'Средний чек', val: dashRub(d.metrics.avg_check), sub: 'выручка/продажи' },
+      { label: 'ДРР', val: dashPct(d.metrics.drr_percent), sub: 'затраты/выручка' },
+      { label: 'ROMI', val: dashPct(d.metrics.romi_percent), sub: romiSub, good: has(d.metrics.romi_percent) },
+      { label: 'Повторные продажи', val: dashPct(d.metrics.repeat_share_percent), sub: 'доля от всех' }
     ];
     var grid = document.getElementById('home-metrics');
     grid.innerHTML = '';
@@ -775,10 +784,10 @@
       grid.appendChild(c);
     });
 
-    document.getElementById('home-spend').textContent = compact(d.ad_spend.yandex_direct_spend) + ' ₽';
+    document.getElementById('home-spend').textContent = dashMoney(d.ad_spend.yandex_direct_spend);
     var balanceChip = document.getElementById('home-balance-chip');
-    document.getElementById('home-balance').textContent = compact(d.ad_spend.account_balance) + ' ₽';
-    balanceChip.classList.toggle('warn', d.ad_spend.account_balance < 20000);
+    document.getElementById('home-balance').textContent = dashMoney(d.ad_spend.account_balance);
+    balanceChip.classList.toggle('warn', has(d.ad_spend.account_balance) && d.ad_spend.account_balance < 20000);
 
     var topAlertBtn = document.getElementById('home-alert-top');
     if (d.top_alert) {
@@ -806,15 +815,19 @@
   function renderRings(d) {
     var wrap = document.getElementById('home-rings');
     var leadsP = d.leads_plan_fact, revP = d.plan_fact;
+    var hasLeadPlan = has(leadsP.plan) && leadsP.plan > 0;
+    var hasRevPlan = has(revP.plan) && revP.plan > 0;
     var items = [
-      { label: 'Лиды', percent: leadsP.percent, sub: num(leadsP.fact) + ' из ' + num(leadsP.plan) },
-      { label: 'Выручка', percent: revP.percent, sub: compact(revP.fact) + ' из ' + compact(revP.plan) + ' ₽' }
+      { label: 'Лиды', has: hasLeadPlan, percent: hasLeadPlan ? leadsP.percent : 0,
+        sub: hasLeadPlan ? (num(leadsP.fact) + ' из ' + num(leadsP.plan)) : 'план не задан' },
+      { label: 'Выручка', has: hasRevPlan, percent: hasRevPlan ? revP.percent : 0,
+        sub: hasRevPlan ? (compact(revP.fact) + ' из ' + compact(revP.plan) + ' ₽') : 'план не задан' }
     ];
     wrap.innerHTML = '';
     items.forEach(function (it) {
       var cell = el('div', 'ring-item');
       cell.innerHTML = '<div class="ring-wrap">' + ringSvg(it.percent) +
-        '<div class="ring-pct"><div class="ring-pct-val">' + it.percent + '%</div></div></div>' +
+        '<div class="ring-pct"><div class="ring-pct-val">' + (it.has ? it.percent + '%' : '—') + '</div></div></div>' +
         '<div class="ring-label">' + it.label + '</div>' +
         '<div class="ring-sub">' + it.sub + '</div>';
       wrap.appendChild(cell);
@@ -852,7 +865,7 @@
       document.getElementById('lf-sales').textContent = num(home.funnel_summary.sales);
       document.getElementById('lf-revenue').textContent = compact(home.funnel_summary.revenue);
       document.getElementById('lf-conv').textContent = String(home.funnel_summary.conversion_percent).replace('.', ',') + '%';
-      document.getElementById('lf-cpo').textContent = 'CPO ' + compact(home.metrics.cpo);
+      document.getElementById('lf-cpo').textContent = has(home.metrics.cpo) ? 'CPO ' + compact(home.metrics.cpo) : 'CPO —';
 
       var chanWrap = document.getElementById('channel-list');
       chanWrap.innerHTML = '';
@@ -878,7 +891,7 @@
         var row = el('div', 'dir-row');
         row.innerHTML = '<div class="dir-name">' + dRow.direction + (dRow.is_exact ? '<span class="badge-real">●</span>' : '') + '</div>' +
           '<div class="dir-num">' + num(dRow.leads) + '</div>' +
-          '<div class="dir-num muted">' + rub(dRow.cpl) + '</div>' +
+          '<div class="dir-num muted">' + dashRub(dRow.cpl) + '</div>' +
           '<div class="dir-num muted">' + dRow.cycle_days + ' дн</div>';
         dirWrap.appendChild(row);
       });
