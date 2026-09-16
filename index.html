@@ -491,6 +491,14 @@
         <div id="profile-sources"></div>
       </div>
 
+      <div class="card" id="access-card" style="display:none;">
+        <div class="eyebrow muted">Управление доступом</div>
+        <div id="access-pending"></div>
+        <div id="access-allowed"></div>
+        <div id="access-add" style="margin-top:8px;"></div>
+        <div id="access-hint" style="font-size:11px;color:var(--text-faint);margin-top:8px;">Доступ только к дашборду. К Клаве и другим данным он не даёт.</div>
+      </div>
+
       <div class="card">
         <div class="eyebrow muted">План месяца <span id="plan-month-label" style="opacity:.6;font-weight:400;"></span></div>
         <div class="edit-row">
@@ -621,17 +629,52 @@
     return '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 3 2 17h16L10 3Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8.5v3.2M10 14.2v.1" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
   }
 
+  function tgInitData() {
+    try { return (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || ''; }
+    catch (e) { return ''; }
+  }
+  // POST на бэкенд с Telegram-подписью
+  function apiPost(path, body) {
+    body = body || {};
+    body.initData = tgInitData();
+    return fetch(path, {
+      method: 'POST', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+  }
+
+  function showAccessScreen(pending) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'none';
+    document.getElementById('bottom-nav').style.display = 'none';
+    var box = document.getElementById('load-error');
+    box.style.display = 'flex';
+    box.innerHTML = pending
+      ? '<div style="font-size:34px;margin-bottom:10px;">🔒</div>'
+        + '<div style="font-size:16px;font-weight:600;margin-bottom:6px;">Запрос на доступ отправлен</div>'
+        + '<div style="font-size:12.5px;color:var(--text-dim);max-width:280px;">Руководитель подтвердит доступ к дашборду. Загляните позже.</div>'
+      : '<div style="font-size:34px;margin-bottom:10px;">📲</div>'
+        + '<div style="font-size:16px;font-weight:600;margin-bottom:6px;">Откройте через Telegram</div>'
+        + '<div style="font-size:12.5px;color:var(--text-dim);max-width:280px;">Дашборд открывается только из бота (кнопка «📊 Дашборд»), чтобы данные были защищены.</div>';
+  }
+
   function loadData() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('load-error').style.display = 'none';
     document.getElementById('content').style.display = 'none';
     document.getElementById('bottom-nav').style.display = 'none';
 
-    fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('bad status ' + r.status); return r.json(); })
-      .then(function (json) {
-        STATE.data = json;
-        STATE.period = json.default_period || 'month';
+    apiPost('/api/data')
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, j: j }; }); })
+      .then(function (res) {
+        var j = res.j;
+        if (res.status === 401) { showAccessScreen(false); return; }
+        if (!j.ok) { showAccessScreen(j.access === 'pending'); return; }
+        STATE.data = j.data;
+        STATE.role = j.role;
+        STATE.userName = j.user_name || 'Катя';
+        STATE.period = (j.data && j.data.default_period) || 'month';
         applyOverrides();
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
@@ -640,7 +683,7 @@
         renderAll();
       })
       .catch(function (err) {
-        console.error('data.json load failed:', err);
+        console.error('load failed:', err);
         document.getElementById('loading').style.display = 'none';
         document.getElementById('load-error').style.display = 'flex';
       });
@@ -919,19 +962,31 @@
   function renderProfile() {
     var p = STATE.data.profile;
     if (!p) return;
-    document.getElementById('profile-avatar').textContent = (p.user_name || '?').charAt(0);
-    document.getElementById('profile-name').textContent = p.user_name;
-    document.getElementById('profile-role').textContent = p.role;
+    var dispName = STATE.userName || p.user_name || '?';
+    document.getElementById('profile-avatar').textContent = dispName.charAt(0);
+    document.getElementById('profile-name').textContent = dispName;
+    document.getElementById('profile-role').textContent = (STATE.role === 'admin' ? 'Администратор' : 'Доступ к дашборду');
 
     var sourcesWrap = document.getElementById('profile-sources');
     sourcesWrap.innerHTML = '';
     p.data_sources.forEach(function (s) {
       var row = el('div', 'row');
-      row.innerHTML = '<span class="status-dot"></span><div class="row-body"><div class="row-name">' + s.name + '</div>' +
-        '<div class="row-sub">Подключено · обновлено ' + s.updated_minutes_ago + ' мин назад</div></div>' +
-        '<svg class="row-chev" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 11 8l-5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      var connected = s.status === 'connected';
+      var sub = connected
+        ? ('Подключено · обновлено ' + (s.updated_minutes_ago != null ? s.updated_minutes_ago + ' мин назад' : 'только что'))
+        : 'Не подключено';
+      row.innerHTML = '<span class="status-dot" style="background:' + (connected ? '#4F8C6B' : '#C9CDD3') + ';"></span>' +
+        '<div class="row-body"><div class="row-name">' + s.name + '</div>' +
+        '<div class="row-sub">' + sub + '</div></div>';
       sourcesWrap.appendChild(row);
     });
+
+    if (STATE.role === 'admin') {
+      document.getElementById('access-card').style.display = 'block';
+      renderAccess();
+    } else {
+      document.getElementById('access-card').style.display = 'none';
+    }
 
     var thWrap = document.getElementById('profile-thresholds');
     thWrap.innerHTML = '';
@@ -945,6 +1000,62 @@
     document.getElementById('plan-month-label').textContent = '· ' + STATE.data.current_month_label;
     document.getElementById('plan-revenue-input').value = STATE.data.home.month.plan_fact.plan;
     document.getElementById('plan-leads-input').value = STATE.data.home.month.leads_plan_fact.plan;
+  }
+
+  function accessBtn(label, bg, onClick) {
+    var b = el('button', '');
+    b.textContent = label;
+    b.style.cssText = 'border:none;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:600;cursor:pointer;color:#fff;background:' + bg + ';margin-left:6px;';
+    b.onclick = onClick;
+    return b;
+  }
+
+  function renderAccess() {
+    apiPost('/api/access/list').then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) return;
+      var pw = document.getElementById('access-pending');
+      var aw = document.getElementById('access-allowed');
+      pw.innerHTML = ''; aw.innerHTML = '';
+      // заявки
+      (j.pending || []).forEach(function (p) {
+        var row = el('div', 'row');
+        row.style.alignItems = 'center';
+        var nm = p.name || String(p.id);
+        var un = p.username ? ' @' + p.username : '';
+        row.innerHTML = '<div class="row-body"><div class="row-name">' + nm + '</div><div class="row-sub">заявка на доступ' + un + '</div></div>';
+        row.appendChild(accessBtn('✓', '#4F8C6B', function () { accessAction('/api/access/add', p.id); }));
+        row.appendChild(accessBtn('✗', '#C2596B', function () { accessAction('/api/access/reject', p.id); }));
+        pw.appendChild(row);
+      });
+      // выданные
+      if (!(j.allowed || []).length) {
+        aw.innerHTML = '<div class="row-sub" style="padding:6px 0;">Пока доступ только у тебя. Добавь людей ниже или подтверди заявки.</div>';
+      }
+      (j.allowed || []).forEach(function (id) {
+        var row = el('div', 'row');
+        row.style.alignItems = 'center';
+        row.innerHTML = '<div class="row-body"><div class="row-name">ID ' + id + '</div><div class="row-sub">есть доступ к дашборду</div></div>';
+        row.appendChild(accessBtn('Убрать', '#C2596B', function () { accessAction('/api/access/remove', id); }));
+        aw.appendChild(row);
+      });
+      // добавить по ID
+      var addw = document.getElementById('access-add');
+      addw.innerHTML = '';
+      var inp = el('input', 'edit-input');
+      inp.type = 'number'; inp.placeholder = 'Telegram ID'; inp.inputMode = 'numeric';
+      inp.style.cssText = 'width:130px;';
+      var wrap = el('div', 'edit-row');
+      wrap.innerHTML = '<div class="edit-row-label">Добавить по ID</div>';
+      var iw = el('div', 'edit-row-input-wrap'); iw.appendChild(inp);
+      iw.appendChild(accessBtn('Добавить', '#241F22', function () {
+        var v = parseInt(inp.value, 10); if (v) accessAction('/api/access/add', v);
+      }));
+      wrap.appendChild(iw); addw.appendChild(wrap);
+    });
+  }
+
+  function accessAction(path, uid) {
+    apiPost(path, { user_id: uid }).then(function (r) { return r.json(); }).then(function () { renderAccess(); });
   }
 
   function flashSaveNote(id) {
