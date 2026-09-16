@@ -492,11 +492,6 @@
       </div>
 
       <div class="card">
-        <div class="eyebrow muted">Доступ к Клаве</div>
-        <div id="profile-access"></div>
-      </div>
-
-      <div class="card">
         <div class="eyebrow muted">План месяца <span id="plan-month-label" style="opacity:.6;font-weight:400;"></span></div>
         <div class="edit-row">
           <div class="edit-row-label">План по выручке</div>
@@ -937,23 +932,6 @@
         '<svg class="row-chev" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 11 8l-5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       sourcesWrap.appendChild(row);
     });
-
-    var accessWrap = document.getElementById('profile-access');
-    accessWrap.innerHTML = '';
-    var accessColors = ['#C2596B', '#C79A46', '#7C93AE', '#4F8C6B'];
-    p.bot_access.forEach(function (a, i) {
-      var row = el('div', 'row');
-      row.innerHTML = '<div class="access-avatar" style="background:' + accessColors[i % accessColors.length] + ';">' + a.name.charAt(0) + '</div>' +
-        '<div class="row-body"><div class="row-name">' + a.name + '</div></div><div class="access-role">' + a.role + '</div>';
-      accessWrap.appendChild(row);
-    });
-    var addRow = el('div', 'row', '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3.5v9M3.5 8h9" stroke="#241F22" stroke-width="1.6" stroke-linecap="round"/></svg><span style="font-size:11.5px;margin-left:6px;">Добавить</span>');
-    addRow.style.opacity = '0.6';
-    addRow.style.border = '1px dashed rgba(36,31,34,0.22)';
-    addRow.style.borderRadius = '10px';
-    addRow.style.padding = '9px 10px';
-    addRow.style.marginTop = '3px';
-    accessWrap.appendChild(addRow);
 
     var thWrap = document.getElementById('profile-thresholds');
     thWrap.innerHTML = '';
