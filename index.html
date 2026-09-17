@@ -839,8 +839,8 @@
     document.getElementById('home-cycle').textContent = 'цикл ' + d.funnel_summary.cycle_days + ' дн.';
 
     var cplSub = has(d.metrics.direct_leads) ? num(d.metrics.direct_leads) + ' лидов с Директа' : 'лиды с Директа';
-    var cpoSub = has(d.metrics.direct_sales) ? num(d.metrics.direct_sales) + ' ' + pluralWord(d.metrics.direct_sales, 'продажа', 'продажи', 'продаж') + ' с Директа' : 'продажи с Директа';
-    var romiSub = has(d.metrics.romi_percent) ? 'по продажам с Директа' : 'нет данных Директа';
+    var cpoSub = num(d.funnel_summary.sales) + ' ' + pluralWord(d.funnel_summary.sales, 'продажа', 'продажи', 'продаж');
+    var romiSub = has(d.metrics.romi_percent) ? 'выручка / расход' : 'нет данных Директа';
     var metricDefs = [
       { label: 'CPL', val: dashRub(d.metrics.cpl), sub: cplSub },
       { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: cpoSub },
