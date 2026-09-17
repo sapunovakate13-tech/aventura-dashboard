@@ -622,6 +622,15 @@
   function dashRub(n) { return has(n) ? rub(n) : '—'; }
   function dashPct(n) { return has(n) ? String(n).replace('.', ',') + '%' : '—'; }
   function dashMoney(n) { return has(n) ? compact(n) + ' ₽' : '—'; }
+  // точная сумма без округления: разряды + копейки, если есть
+  function moneyFull(n) {
+    var v = Number(n || 0), neg = v < 0; v = Math.abs(v);
+    var whole = Math.trunc(v), k = Math.round((v - whole) * 100);
+    var s = fmtRUB.format(whole);
+    if (k) s += ',' + (k < 10 ? '0' : '') + k;
+    return (neg ? '-' : '') + s;
+  }
+  function rubFull(n) { return has(n) ? moneyFull(n) + ' ₽' : '—'; }
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
@@ -800,8 +809,8 @@
     document.getElementById('home-plan-label').textContent = '· ' + periodLabel.toLowerCase();
     var hasPlan = has(d.plan_fact.plan) && d.plan_fact.plan > 0;
     document.getElementById('home-percent').textContent = hasPlan ? d.plan_fact.percent + '%' : '—';
-    document.getElementById('home-fact').textContent = compact(d.plan_fact.fact) + ' ₽';
-    document.getElementById('home-plan').textContent = hasPlan ? compact(d.plan_fact.plan) + ' ₽' : 'не задан';
+    document.getElementById('home-fact').textContent = rubFull(d.plan_fact.fact);
+    document.getElementById('home-plan').textContent = hasPlan ? rubFull(d.plan_fact.plan) : 'не задан';
     document.getElementById('home-fill').style.width = (hasPlan ? Math.min(100, d.plan_fact.percent) : 0) + '%';
 
     var paceMarker = document.getElementById('home-pace');
@@ -825,7 +834,7 @@
 
     document.getElementById('home-leads').textContent = compact(d.funnel_summary.leads);
     document.getElementById('home-sales').textContent = num(d.funnel_summary.sales);
-    document.getElementById('home-revenue').textContent = compact(d.funnel_summary.revenue);
+    document.getElementById('home-revenue').textContent = moneyFull(d.funnel_summary.revenue);
     document.getElementById('home-conv').textContent = 'конв. ' + String(d.funnel_summary.conversion_percent).replace('.', ',') + '%';
     document.getElementById('home-cycle').textContent = 'цикл ' + d.funnel_summary.cycle_days + ' дн.';
 
@@ -835,7 +844,7 @@
     var metricDefs = [
       { label: 'CPL', val: dashRub(d.metrics.cpl), sub: compact(d.funnel_summary.leads) + ' лидов' },
       { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: num(d.funnel_summary.sales) + ' ' + pluralWord(d.funnel_summary.sales, 'продажа', 'продажи', 'продаж') },
-      { label: 'Средний чек', val: dashRub(d.metrics.avg_check), sub: 'выручка/продажи' },
+      { label: 'Средний чек', val: rubFull(d.metrics.avg_check), sub: 'выручка/продажи' },
       { label: 'ДРР', val: dashPct(d.metrics.drr_percent), sub: 'затраты/выручка' },
       { label: 'ROMI', val: dashPct(d.metrics.romi_percent), sub: romiSub, good: has(d.metrics.romi_percent) },
       { label: 'Повторные продажи', val: dashPct(d.metrics.repeat_share_percent), sub: 'доля от всех' }
@@ -927,7 +936,7 @@
     if (lf && home) {
       document.getElementById('lf-leads').textContent = compact(home.funnel_summary.leads);
       document.getElementById('lf-sales').textContent = num(home.funnel_summary.sales);
-      document.getElementById('lf-revenue').textContent = compact(home.funnel_summary.revenue);
+      document.getElementById('lf-revenue').textContent = moneyFull(home.funnel_summary.revenue);
       document.getElementById('lf-conv').textContent = String(home.funnel_summary.conversion_percent).replace('.', ',') + '%';
       document.getElementById('lf-cpo').textContent = has(home.metrics.cpo) ? 'CPO ' + compact(home.metrics.cpo) : 'CPO —';
 
@@ -965,7 +974,7 @@
     if (deals) {
       var paid = deals.paid;
       document.getElementById('paid-count').textContent = num(paid.count) + ' сделок';
-      document.getElementById('paid-amount').textContent = compact(paid.total_amount) + ' ₽';
+      document.getElementById('paid-amount').textContent = rubFull(paid.total_amount);
       var paidChanWrap = document.getElementById('paid-channels');
       paidChanWrap.innerHTML = '';
       paid.by_channel.forEach(function (c) {
@@ -978,13 +987,13 @@
         var row = el('div', 'deal-row');
         row.innerHTML = '<div class="deal-icon" style="background:#FBEFF0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 16 8 8l4 4 4-8" stroke="#C2596B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
           '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">Оплата · ' + fmtDateShort(r.date) + '</div></div>' +
-          '<div class="deal-amt">' + rub(r.amount) + '</div>';
+          '<div class="deal-amt">' + rubFull(r.amount) + '</div>';
         recentWrap.appendChild(row);
       });
 
       var prog = deals.in_progress;
       document.getElementById('prog-count').textContent = num(prog.count) + ' сделки';
-      document.getElementById('prog-amount').textContent = '≈ ' + compact(prog.total_amount) + ' ₽';
+      document.getElementById('prog-amount').textContent = rubFull(prog.total_amount);
       var stageWrap = document.getElementById('prog-stages');
       stageWrap.innerHTML = '';
       var maxCount = Math.max.apply(null, prog.by_status.map(function (s) { return s.count; }));
