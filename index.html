@@ -1084,8 +1084,8 @@
     });
 
     document.getElementById('plan-month-label').textContent = '· ' + STATE.data.current_month_label;
-    document.getElementById('plan-revenue-input').value = STATE.data.home.month.plan_fact.plan;
-    document.getElementById('plan-leads-input').value = STATE.data.home.month.leads_plan_fact.plan;
+    document.getElementById('plan-revenue-input').value = STATE.data.home.month.plan_fact.plan || '';
+    document.getElementById('plan-leads-input').value = STATE.data.home.month.leads_plan_fact.plan || '';
   }
 
   function accessBtn(label, bg, onClick) {
@@ -1215,11 +1215,20 @@
   document.getElementById('plan-save-btn').addEventListener('click', function () {
     var revenue = parseInt(document.getElementById('plan-revenue-input').value, 10);
     var leads = parseInt(document.getElementById('plan-leads-input').value, 10);
-    if (!revenue || !leads || revenue <= 0 || leads <= 0) return;
-    saveOverrides({ plan: { revenue_plan: revenue, leads_plan: leads } });
-    applyOverrides();
-    renderHome();
-    flashSaveNote('plan-save-note');
+    var hasRev = revenue > 0, hasLds = leads > 0;
+    if (!hasRev && !hasLds) return;                    // достаточно одного поля
+    var body = {};
+    if (hasRev) body.revenue = revenue;
+    if (hasLds) body.leads = leads;
+    var applyLocal = function () {
+      saveOverrides({ plan: { revenue_plan: hasRev ? revenue : 0, leads_plan: hasLds ? leads : 0 } });
+      applyOverrides();
+      renderHome();
+      flashSaveNote('plan-save-note');
+    };
+    // сохраняем на СЕРВЕР (держится между сессиями и на всех устройствах), локально — сразу
+    apiPost('/api/plan/set', body).then(function (r) { return r.json(); })
+      .then(applyLocal).catch(applyLocal);
   });
 
   document.getElementById('thresholds-save-btn').addEventListener('click', function () {
