@@ -838,15 +838,15 @@
     document.getElementById('home-conv').textContent = 'конв. ' + String(d.funnel_summary.conversion_percent).replace('.', ',') + '%';
     document.getElementById('home-cycle').textContent = 'цикл ' + d.funnel_summary.cycle_days + ' дн.';
 
-    var romiSub = (has(d.metrics.romi_percent) && d.ad_spend.yandex_direct_spend)
-      ? '×' + Math.round(d.funnel_summary.revenue / d.ad_spend.yandex_direct_spend) + ' к затратам'
-      : 'нет данных Директа';
+    var cplSub = has(d.metrics.direct_leads) ? num(d.metrics.direct_leads) + ' лидов с Директа' : 'лиды с Директа';
+    var cpoSub = has(d.metrics.direct_sales) ? num(d.metrics.direct_sales) + ' ' + pluralWord(d.metrics.direct_sales, 'продажа', 'продажи', 'продаж') + ' с Директа' : 'продажи с Директа';
+    var romiSub = has(d.metrics.romi_percent) ? 'по продажам с Директа' : 'нет данных Директа';
     var metricDefs = [
-      { label: 'CPL', val: dashRub(d.metrics.cpl), sub: compact(d.funnel_summary.leads) + ' лидов' },
-      { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: num(d.funnel_summary.sales) + ' ' + pluralWord(d.funnel_summary.sales, 'продажа', 'продажи', 'продаж') },
+      { label: 'CPL', val: dashRub(d.metrics.cpl), sub: cplSub },
+      { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: cpoSub },
       { label: 'Средний чек', val: rubFull(d.metrics.avg_check), sub: 'выручка/продажи' },
-      { label: 'ДРР', val: dashPct(d.metrics.drr_percent), sub: 'затраты/выручка' },
-      { label: 'ROMI', val: dashPct(d.metrics.romi_percent), sub: romiSub, good: has(d.metrics.romi_percent) },
+      { label: 'ДРР', val: dashPct(d.metrics.drr_percent), sub: 'расход / выручка' },
+      { label: 'ROMI', val: dashPct(d.metrics.romi_percent), sub: romiSub, good: has(d.metrics.romi_percent) && d.metrics.romi_percent >= 0 },
       { label: 'Повторные продажи', val: dashPct(d.metrics.repeat_share_percent), sub: 'доля от всех' }
     ];
     var grid = document.getElementById('home-metrics');
