@@ -53,6 +53,8 @@
   .pill { border: 1px solid var(--border-strong); border-radius: 999px; padding: 6px 12px; font-family: 'Oswald', sans-serif; background: #fff;
     font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
   .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  [data-period-group] .pill { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.15; }
+  .pill-date { font-size: 8.5px; letter-spacing: 0.01em; text-transform: none; opacity: 0.72; font-weight: 400; }
 
   /* level tabs (Лиды/Сделки) */
   .level-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border-strong); }
@@ -708,7 +710,9 @@
     groups.forEach(function (group) {
       group.innerHTML = '';
       STATE.data.periods.forEach(function (p) {
-        var btn = el('button', 'pill' + (p.id === STATE.period ? ' active' : ''), p.label);
+        var btn = el('button', 'pill' + (p.id === STATE.period ? ' active' : ''));
+        btn.innerHTML = '<span class="pill-lbl">' + p.label + '</span>' +
+          (p.date_label ? '<span class="pill-date">' + p.date_label + '</span>' : '');
         btn.setAttribute('data-period', p.id);
         btn.addEventListener('click', function () {
           if (p.id === 'custom') { openRangePanel(); return; }
@@ -965,7 +969,7 @@
         row.innerHTML = '<div class="dir-name">' + dRow.direction + (dRow.is_exact ? '<span class="badge-real">●</span>' : '') + '</div>' +
           '<div class="dir-num">' + num(dRow.leads) + '</div>' +
           '<div class="dir-num muted">' + dashRub(dRow.cpl) + '</div>' +
-          '<div class="dir-num muted">' + dRow.cycle_days + ' дн</div>';
+          '<div class="dir-num muted">' + (has(dRow.cycle_days) ? dRow.cycle_days + ' дн' : '—') + '</div>';
         dirWrap.appendChild(row);
       });
     }
@@ -986,7 +990,7 @@
       paid.recent.forEach(function (r) {
         var row = el('div', 'deal-row');
         row.innerHTML = '<div class="deal-icon" style="background:#FBEFF0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 16 8 8l4 4 4-8" stroke="#C2596B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-          '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">Оплата · ' + fmtDateShort(r.date) + '</div></div>' +
+          '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">' + ((r.channel && r.channel !== '—') ? r.channel + ' · ' : '') + 'оплата ' + fmtDateShort(r.date) + '</div></div>' +
           '<div class="deal-amt">' + rubFull(r.amount) + '</div>';
         recentWrap.appendChild(row);
       });
