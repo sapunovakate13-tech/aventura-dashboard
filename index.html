@@ -62,6 +62,8 @@
   .rule-row:last-child { border-bottom: none; }
   .rule-name { color: var(--text-dim); }
   .rule-val { font-family: 'Oswald', sans-serif; font-weight: 600; color: var(--text); white-space: nowrap; }
+  .tappable { cursor: pointer; }
+  .tappable .foot-note { color: var(--accent); font-weight: 600; }
 
   /* level tabs (Лиды/Сделки) */
   .level-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border-strong); }
@@ -314,7 +316,7 @@
 
       <button class="alert-top" id="home-alert-top" hidden></button>
 
-      <div class="card hero-blush">
+      <div class="card hero-blush" id="home-plan-card">
         <div class="eyebrow">План периода <span id="home-plan-label" style="opacity:.55;font-weight:400;"></span></div>
         <div class="hero-row">
           <div class="hero-pct" id="home-percent">—</div>
@@ -838,7 +840,23 @@
 
     var paceMarker = document.getElementById('home-pace');
     var note = document.getElementById('home-pace-note');
-    if (isPrev || !hasPlan || d.plan_fact.pace_expected_percent == null) {
+    var planCard = document.getElementById('home-plan-card');
+    // если план не задан — блок кликабелен и ведёт в профиль задать план
+    if (planCard) {
+      if (!hasPlan && !isPrev) {
+        planCard.classList.add('tappable');
+        planCard.onclick = function () { goTo('profile'); };
+      } else {
+        planCard.classList.remove('tappable');
+        planCard.onclick = null;
+      }
+    }
+    if (!hasPlan && !isPrev) {
+      paceMarker.hidden = true;
+      note.hidden = false;
+      note.className = 'foot-note';
+      note.innerHTML = 'Нажмите, чтобы задать план на месяц в профиле →';
+    } else if (isPrev || !hasPlan || d.plan_fact.pace_expected_percent == null) {
       paceMarker.hidden = true;
       note.hidden = true;
     } else {
