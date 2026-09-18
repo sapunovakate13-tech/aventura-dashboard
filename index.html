@@ -160,6 +160,17 @@
   .src-list, .chan-list, .deal-list { display: flex; flex-direction: column; }
   .src-row, .chan-row, .deal-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .src-row:last-child, .chan-row:last-child, .deal-row:last-child { border-bottom: none; }
+  .src-group { border-bottom: 1px solid var(--border); }
+  .src-group:last-child { border-bottom: none; }
+  .src-group .src-row { border-bottom: none; }
+  .src-expandable { cursor: pointer; }
+  .src-chev { display: inline-block; margin-left: 5px; font-size: 9px; color: var(--text-faint); transition: transform 0.15s; }
+  .src-row.open .src-chev { transform: rotate(90deg); }
+  .src-sublist { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 10px 42px; }
+  .src-subrow { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-dim); }
+  .src-subname { position: relative; padding-left: 12px; }
+  .src-subname::before { content: ''; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); transform: translateY(-50%); }
+  .src-subval { font-family: 'Oswald', sans-serif; font-weight: 600; color: var(--text); }
   .src-icon, .chan-icon, .deal-icon { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .src-body, .chan-body, .deal-body { flex: 1; min-width: 0; }
   .src-name, .chan-name, .deal-name { font-size: 12.5px; font-weight: 600; }
@@ -954,11 +965,29 @@
       };
       var bg = { site: '#EAF0F6', social: '#FBEFF0', calls: '#F3EFE3', reactivation: '#EEF2E9' };
       lf.by_channel.forEach(function (c) {
-        var row = el('div', 'src-row');
+        var subs = (c.sub || []).filter(function (s) { return s.leads > 0; });
+        var canExpand = subs.length > 1;
+        var wrap = el('div', 'src-group');
+        var row = el('div', 'src-row' + (canExpand ? ' src-expandable' : ''));
         row.innerHTML = '<div class="src-icon" style="background:' + bg[c.channel] + ';">' + icons[c.channel] + '</div>' +
-          '<div class="src-body"><div class="src-name">' + c.name + '</div><div class="src-bar-track"><div class="src-bar-fill" style="width:' + c.share_percent + '%;"></div></div></div>' +
+          '<div class="src-body"><div class="src-name">' + c.name + (canExpand ? '<span class="src-chev">▸</span>' : '') + '</div><div class="src-bar-track"><div class="src-bar-fill" style="width:' + c.share_percent + '%;"></div></div></div>' +
           '<div class="src-right"><div class="src-val">' + num(c.leads) + '</div><div class="src-share">' + c.share_percent + '%</div></div>';
-        chanWrap.appendChild(row);
+        wrap.appendChild(row);
+        if (canExpand) {
+          var subWrap = el('div', 'src-sublist');
+          subWrap.hidden = true;
+          subs.forEach(function (s) {
+            var sr = el('div', 'src-subrow');
+            sr.innerHTML = '<span class="src-subname">' + s.name + '</span><span class="src-subval">' + num(s.leads) + '</span>';
+            subWrap.appendChild(sr);
+          });
+          wrap.appendChild(subWrap);
+          row.addEventListener('click', function () {
+            subWrap.hidden = !subWrap.hidden;
+            row.classList.toggle('open');
+          });
+        }
+        chanWrap.appendChild(wrap);
       });
 
       document.getElementById('dir-count-label').textContent = lf.by_direction.length + ' направлений · ' + compact(home.funnel_summary.leads) + ' лидов всего';
