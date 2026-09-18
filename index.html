@@ -335,7 +335,7 @@
         <div class="eyebrow muted">Воронка — путь клиента</div>
         <div class="route-row">
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-leads">—</div><div class="rlabel">Лиды</div></div>
-          <div class="rnode"><div class="rdot"></div><div class="rval" id="home-sales">—</div><div class="rlabel">Продажи</div><div class="rconv" id="home-conv">—</div></div>
+          <div class="rnode"><div class="rdot"></div><div class="rval" id="home-sales">—</div><div class="rlabel">Продажи, чел.</div><div class="rconv" id="home-conv">—</div></div>
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-revenue">—</div><div class="rlabel">Выручка</div><div class="rconv" id="home-cycle">—</div></div>
         </div>
       </div>
@@ -388,7 +388,7 @@
             <div class="eyebrow muted">Весь путь</div>
             <div class="route-row">
               <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-leads">—</div><div class="rlabel">Лиды</div></div>
-              <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-sales">—</div><div class="rlabel">Продажи</div><div class="rconv" id="lf-conv">—</div></div>
+              <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-sales">—</div><div class="rlabel">Продажи, чел.</div><div class="rconv" id="lf-conv">—</div></div>
               <div class="rnode"><div class="rdot"></div><div class="rval" id="lf-revenue">—</div><div class="rlabel">Выручка</div><div class="rconv" id="lf-cpo">—</div></div>
             </div>
           </div>
@@ -886,7 +886,7 @@
     var metricDefs = [
       { label: 'CPL', val: dashRub(d.metrics.cpl), sub: cplSub },
       { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: cpoSub },
-      { label: 'Средний чек', val: rubFull(d.metrics.avg_check), sub: 'за сделку · выручка / сделки' },
+      { label: 'Средний чек', val: rubFull(d.metrics.avg_check), sub: 'на человека · выручка / туристы' },
       { label: 'ДРР', val: dashPct(d.metrics.drr_percent), sub: 'расход / выручка' },
       { label: 'ROMI', val: dashPct(d.metrics.romi_percent), sub: romiSub, good: has(d.metrics.romi_percent) && d.metrics.romi_percent >= 0 },
       { label: 'Повторные продажи', val: dashPct(d.metrics.repeat_share_percent), sub: 'доля от всех' }
