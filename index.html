@@ -611,22 +611,22 @@
     lf.percent = lf.plan ? Math.round(lf.fact / lf.plan * 100) : 0;
   }
 
-  function applyOverrides() {
-    var ov = loadOverrides();
-    if (ov.plan) {
-      ['month', 'custom'].forEach(function (p) {
-        var d = STATE.data.home[p];
-        if (!d) return;
-        if (ov.plan.revenue_plan) d.plan_fact.plan = ov.plan.revenue_plan;
-        if (ov.plan.leads_plan) d.leads_plan_fact.plan = ov.plan.leads_plan;
-        recomputePlanFact(d);
-      });
-    }
-    if (ov.thresholds) {
-      STATE.data.profile.alert_thresholds.forEach(function (t) {
-        if (ov.thresholds[t.key] !== undefined) t.raw = ov.thresholds[t.key];
-      });
-    }
+  // План и пороги теперь ХРАНЯТСЯ НА СЕРВЕРЕ и накладываются бэкендом при отдаче /api/data
+  // (не в localStorage — чтобы держались между сессиями, устройствами и версиями аппа).
+  function applyOverrides() { /* серверная модель, оверрайдов нет */ }
+
+  // перезагрузка данных с сервера без смены экрана (после сохранения плана/порогов)
+  function reloadData(then) {
+    apiPost('/api/data').then(function (r) { return r.json(); }).then(function (j) {
+      if (j.ok && j.data) {
+        STATE.data = j.data;
+        STATE.role = j.role || STATE.role;
+        renderPeriodPills();
+        renderAll();
+        if (document.getElementById('profile-thresholds')) renderProfile();
+      }
+      if (then) then();
+    }).catch(function () { if (then) then(); });
   }
 
   var fmtRUB = new Intl.NumberFormat('ru-RU');
@@ -1279,15 +1279,10 @@
     var body = {};
     if (hasRev) body.revenue = revenue;
     if (hasLds) body.leads = leads;
-    var applyLocal = function () {
-      saveOverrides({ plan: { revenue_plan: hasRev ? revenue : 0, leads_plan: hasLds ? leads : 0 } });
-      applyOverrides();
-      renderHome();
-      flashSaveNote('plan-save-note');
-    };
-    // сохраняем на СЕРВЕР (держится между сессиями и на всех устройствах), локально — сразу
+    // сохраняем ТОЛЬКО на СЕРВЕР → перечитываем данные (сервер накладывает план)
     apiPost('/api/plan/set', body).then(function (r) { return r.json(); })
-      .then(applyLocal).catch(applyLocal);
+      .then(function () { reloadData(function () { flashSaveNote('plan-save-note'); }); })
+      .catch(function () { flashSaveNote('plan-save-note'); });
   });
 
   document.getElementById('thresholds-save-btn').addEventListener('click', function () {
@@ -1296,11 +1291,10 @@
       var v = parseFloat(inp.value);
       if (!isNaN(v)) patch[inp.getAttribute('data-threshold-key')] = v;
     });
-    var current = loadOverrides();
-    var thresholds = Object.assign({}, current.thresholds || {}, patch);
-    saveOverrides({ thresholds: thresholds });
-    applyOverrides();
-    flashSaveNote('thresholds-save-note');
+    // пороги — на СЕРВЕР
+    apiPost('/api/thresholds/set', { thresholds: patch }).then(function (r) { return r.json(); })
+      .then(function () { reloadData(function () { flashSaveNote('thresholds-save-note'); }); })
+      .catch(function () { flashSaveNote('thresholds-save-note'); });
   });
 
   loadData();
