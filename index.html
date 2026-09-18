@@ -876,7 +876,8 @@
     document.getElementById('home-leads').textContent = compact(d.funnel_summary.leads);
     document.getElementById('home-sales').textContent = num(d.funnel_summary.sales);
     document.getElementById('home-revenue').textContent = moneyFull(d.funnel_summary.revenue);
-    document.getElementById('home-conv').textContent = 'конв. ' + String(d.funnel_summary.conversion_percent).replace('.', ',') + '%';
+    document.getElementById('home-conv').textContent = 'конв. ' + String(d.funnel_summary.conversion_percent).replace('.', ',') + '%'
+      + (has(d.funnel_summary.deals) ? ' · ' + num(d.funnel_summary.deals) + ' сдел.' : '');
     document.getElementById('home-cycle').textContent = 'цикл ' + d.funnel_summary.cycle_days + ' дн.';
 
     var cplSub = has(d.metrics.direct_leads) ? num(d.metrics.direct_leads) + ' лидов с Директа' : 'лиды с Директа';
@@ -885,7 +886,7 @@
     var metricDefs = [
       { label: 'CPL', val: dashRub(d.metrics.cpl), sub: cplSub },
       { label: 'Стоимость клиента (CPO)', val: dashRub(d.metrics.cpo), sub: cpoSub },
-      { label: 'Средний чек', val: rubFull(d.metrics.avg_check), sub: 'выручка/продажи' },
+      { label: 'Средний чек', val: rubFull(d.metrics.avg_check), sub: 'за сделку · выручка / сделки' },
       { label: 'ДРР', val: dashPct(d.metrics.drr_percent), sub: 'расход / выручка' },
       { label: 'ROMI', val: dashPct(d.metrics.romi_percent), sub: romiSub, good: has(d.metrics.romi_percent) && d.metrics.romi_percent >= 0 },
       { label: 'Повторные продажи', val: dashPct(d.metrics.repeat_share_percent), sub: 'доля от всех' }
@@ -1032,7 +1033,8 @@
     var deals = STATE.data.deals[STATE.period];
     if (deals) {
       var paid = deals.paid;
-      document.getElementById('paid-count').textContent = num(paid.count) + ' сделок';
+      document.getElementById('paid-count').textContent = num(paid.count) + ' ' + pluralWord(paid.count, 'сделка', 'сделки', 'сделок')
+        + (has(paid.tourists) ? ' · ' + num(paid.tourists) + ' ' + pluralWord(paid.tourists, 'турист', 'туриста', 'туристов') : '');
       document.getElementById('paid-amount').textContent = rubFull(paid.total_amount);
       var paidChanWrap = document.getElementById('paid-channels');
       paidChanWrap.innerHTML = '';
