@@ -64,6 +64,16 @@
   .rule-val { font-family: 'Oswald', sans-serif; font-weight: 600; color: var(--text); white-space: nowrap; }
   .tappable { cursor: pointer; }
   .tappable .foot-note { color: var(--accent); font-weight: 600; }
+  .traffic-top { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .traffic-stat { flex: 1; min-width: 54px; }
+  .traffic-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 17px; }
+  .traffic-lbl { font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+  .traffic-sub { display: flex; gap: 16px; }
+  .traffic-col { flex: 1; min-width: 0; }
+  .traffic-col-h { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 7px; }
+  .traffic-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-dim); padding: 3px 0; gap: 8px; }
+  .traffic-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .traffic-row b { color: var(--text); font-family: 'Oswald', sans-serif; font-weight: 600; flex: 0 0 auto; }
 
   /* level tabs (Лиды/Сделки) */
   .level-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border-strong); }
@@ -334,9 +344,25 @@
       <div class="card">
         <div class="eyebrow muted">Воронка — путь клиента</div>
         <div class="route-row">
+          <div class="rnode"><div class="rdot"></div><div class="rval" id="home-visits">—</div><div class="rlabel">Визиты</div><div class="rconv" id="home-site-conv">—</div></div>
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-leads">—</div><div class="rlabel">Лиды</div></div>
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-sales">—</div><div class="rlabel">Продажи, чел.</div><div class="rconv" id="home-conv">—</div></div>
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-revenue">—</div><div class="rlabel">Выручка</div><div class="rconv" id="home-cycle">—</div></div>
+        </div>
+      </div>
+
+      <div class="card" id="home-traffic-card">
+        <div class="eyebrow muted">Трафик сайта · Яндекс.Метрика</div>
+        <div class="traffic-top">
+          <div class="traffic-stat"><div class="traffic-val" id="tr-visits">—</div><div class="traffic-lbl">Визиты</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="tr-users">—</div><div class="traffic-lbl">Пользователи</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="tr-bounce">—</div><div class="traffic-lbl">Отказы</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="tr-depth">—</div><div class="traffic-lbl">Глубина</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="tr-time">—</div><div class="traffic-lbl">Время</div></div>
+        </div>
+        <div class="traffic-sub">
+          <div class="traffic-col"><div class="traffic-col-h">Источники трафика</div><div id="tr-sources"></div></div>
+          <div class="traffic-col"><div class="traffic-col-h">Направления по визитам</div><div id="tr-directions"></div></div>
         </div>
       </div>
 
@@ -819,6 +845,36 @@
   }
 
   // ---------- HOME ----------
+  function fmtDur(sec) {
+    sec = Math.round(sec || 0); var m = Math.floor(sec / 60), s = sec % 60;
+    return m ? m + ':' + (s < 10 ? '0' : '') + s : s + 'с';
+  }
+  function renderTraffic(tr) {
+    var card = document.getElementById('home-traffic-card');
+    if (!tr) {
+      if (card) card.hidden = true;
+      document.getElementById('home-visits').textContent = '—';
+      document.getElementById('home-site-conv').textContent = '';
+      return;
+    }
+    if (card) card.hidden = false;
+    document.getElementById('home-visits').textContent = compact(tr.visits);
+    document.getElementById('home-site-conv').textContent = 'конв. ' + String(tr.site_conversion).replace('.', ',') + '%';
+    document.getElementById('tr-visits').textContent = num(tr.visits);
+    document.getElementById('tr-users').textContent = num(tr.users);
+    document.getElementById('tr-bounce').textContent = String(tr.bounce_rate).replace('.', ',') + '%';
+    document.getElementById('tr-depth').textContent = String(tr.page_depth).replace('.', ',');
+    document.getElementById('tr-time').textContent = fmtDur(tr.avg_duration_sec);
+    var srcWrap = document.getElementById('tr-sources');
+    srcWrap.innerHTML = (tr.by_source || []).slice(0, 5).map(function (s) {
+      return '<div class="traffic-row"><span>' + s.name + '</span><b>' + num(s.visits) + '</b></div>';
+    }).join('') || '<div class="traffic-row"><span>—</span></div>';
+    var dirWrap = document.getElementById('tr-directions');
+    dirWrap.innerHTML = (tr.by_direction || []).slice(0, 6).map(function (x) {
+      return '<div class="traffic-row"><span>' + x.name + '</span><b>' + num(x.visits) + '</b></div>';
+    }).join('') || '<div class="traffic-row"><span>—</span></div>';
+  }
+
   function renderHome() {
     var isPrev = STATE.showPrevMonth;
     var d = isPrev ? STATE.data.previous_month : STATE.data.home[STATE.period];
@@ -873,6 +929,7 @@
 
     renderRings(d);
 
+    renderTraffic(d.traffic);
     document.getElementById('home-leads').textContent = compact(d.funnel_summary.leads);
     document.getElementById('home-sales').textContent = num(d.funnel_summary.sales);
     document.getElementById('home-revenue').textContent = moneyFull(d.funnel_summary.revenue);
