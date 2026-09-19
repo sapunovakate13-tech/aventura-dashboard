@@ -366,6 +366,16 @@
         </div>
       </div>
 
+      <div class="card" id="home-clients-card">
+        <div class="eyebrow muted">Клиенты и LTV · за всё время</div>
+        <div class="traffic-top">
+          <div class="traffic-stat"><div class="traffic-val" id="cl-total">—</div><div class="traffic-lbl">Клиентов</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="cl-ltv">—</div><div class="traffic-lbl">LTV на клиента</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="cl-repeat">—</div><div class="traffic-lbl">Повторных</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="cl-per">—</div><div class="traffic-lbl">Покупок/клиент</div></div>
+        </div>
+      </div>
+
       <div class="metrics" id="home-metrics"></div>
 
       <div class="card">
@@ -875,6 +885,17 @@
     }).join('') || '<div class="traffic-row"><span>—</span></div>';
   }
 
+  function renderClients() {
+    var cl = STATE.data.clients;
+    var card = document.getElementById('home-clients-card');
+    if (!cl) { if (card) card.hidden = true; return; }
+    if (card) card.hidden = false;
+    document.getElementById('cl-total').textContent = num(cl.total_clients);
+    document.getElementById('cl-ltv').textContent = rubFull(cl.ltv);
+    document.getElementById('cl-repeat').textContent = num(cl.repeat_clients) + ' · ' + cl.repeat_percent + '%';
+    document.getElementById('cl-per').textContent = String(cl.deals_per_client).replace('.', ',');
+  }
+
   function renderHome() {
     var isPrev = STATE.showPrevMonth;
     var d = isPrev ? STATE.data.previous_month : STATE.data.home[STATE.period];
@@ -930,6 +951,7 @@
     renderRings(d);
 
     renderTraffic(d.traffic);
+    renderClients();
     document.getElementById('home-leads').textContent = compact(d.funnel_summary.leads);
     document.getElementById('home-sales').textContent = num(d.funnel_summary.sales);
     document.getElementById('home-revenue').textContent = moneyFull(d.funnel_summary.revenue);
