@@ -404,16 +404,6 @@
             <div class="spend-label">Остаток кабинета</div>
           </div>
         </div>
-        <div class="spend-row" style="margin-top:8px;">
-          <div class="spend-chip">
-            <div class="spend-val" id="home-spend-search">—</div>
-            <div class="spend-label">Поиск (search)</div>
-          </div>
-          <div class="spend-chip">
-            <div class="spend-val" id="home-spend-context">—</div>
-            <div class="spend-label">РСЯ (context)</div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -1042,8 +1032,6 @@
     });
 
     document.getElementById('home-spend').textContent = dashMoney(d.ad_spend.yandex_direct_spend);
-    document.getElementById('home-spend-search').textContent = dashMoney(d.ad_spend.search_spend);
-    document.getElementById('home-spend-context').textContent = dashMoney(d.ad_spend.context_spend);
     var balanceChip = document.getElementById('home-balance-chip');
     document.getElementById('home-balance').textContent = dashMoney(d.ad_spend.account_balance);
     balanceChip.classList.toggle('warn', has(d.ad_spend.account_balance) && d.ad_spend.account_balance < 20000);
