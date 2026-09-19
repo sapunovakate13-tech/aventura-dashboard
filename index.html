@@ -215,8 +215,12 @@
   .col-head-num { font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint); width: 46px; text-align: right; }
   .dir-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
   .dir-row:last-child { border-bottom: none; }
-  .dir-name { flex: 1; font-size: 12px; font-weight: 500; }
-  .dir-num { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; width: 46px; text-align: right; }
+  .dir-name { flex: 1; min-width: 0; font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dir-num { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; width: 46px; text-align: right; flex: 0 0 auto; }
+  .dir-meta { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 12px; white-space: nowrap; flex: 0 0 auto; color: var(--text); }
+  .deal-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .deal-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .deal-amt { flex: 0 0 auto; }
   .dir-num.muted { font-family: 'Golos Text', sans-serif; font-weight: 400; font-size: 10.5px; color: var(--text-faint); }
   .badge-real { color: var(--good); font-size: 8px; margin-left: 4px; }
 
@@ -1186,8 +1190,7 @@
         (prog.by_direction || []).forEach(function (dr) {
           var row = el('div', 'dir-row');
           row.innerHTML = '<div class="dir-name">' + dr.direction + '</div>' +
-            '<div class="dir-num">' + num(dr.count) + ' ' + pluralWord(dr.count, 'сделка', 'сделки', 'сделок') + '</div>' +
-            '<div class="dir-num muted">' + rubFull(dr.amount) + '</div>';
+            '<div class="dir-meta">' + num(dr.count) + ' сд. · ' + rubFull(dr.amount) + '</div>';
           progDirWrap.appendChild(row);
         });
       }
