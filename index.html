@@ -936,7 +936,7 @@
     if (!cl) { if (card) card.hidden = true; return; }
     if (card) card.hidden = false;
     document.getElementById('cl-total').textContent = num(cl.total_clients);
-    document.getElementById('cl-ltv').textContent = rubFull(cl.ltv);
+    document.getElementById('cl-ltv').textContent = compact(cl.ltv) + ' ₽';
     document.getElementById('cl-repeat').textContent = num(cl.repeat_clients) + ' · ' + cl.repeat_percent + '%';
     document.getElementById('cl-per').textContent = String(cl.deals_per_client).replace('.', ',');
     var isPrev = STATE.showPrevMonth;
