@@ -64,10 +64,10 @@
   .rule-val { font-family: 'Oswald', sans-serif; font-weight: 600; color: var(--text); white-space: nowrap; }
   .tappable { cursor: pointer; }
   .tappable .foot-note { color: var(--accent); font-weight: 600; }
-  .traffic-top { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .traffic-stat { flex: 1; min-width: 54px; }
-  .traffic-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 17px; }
-  .traffic-lbl { font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+  .traffic-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 12px 8px; margin-bottom: 14px; }
+  .traffic-stat { min-width: 0; }
+  .traffic-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px; white-space: nowrap; }
+  .traffic-lbl { font-size: 8.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.02em; margin-top: 3px; line-height: 1.15; overflow-wrap: anywhere; }
   .traffic-sub { display: flex; gap: 16px; }
   .traffic-col { flex: 1; min-width: 0; }
   .traffic-col-h { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 7px; }
@@ -190,6 +190,15 @@
   .src-subname { position: relative; padding-left: 12px; }
   .src-subname::before { content: ''; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); transform: translateY(-50%); }
   .src-subval { font-family: 'Oswald', sans-serif; font-weight: 600; color: var(--text); }
+  .deal-group { border-bottom: 1px solid var(--border); }
+  .deal-group:last-child { border-bottom: none; }
+  .deal-group .deal-row { border-bottom: none; }
+  .deal-expandable { cursor: pointer; }
+  .deal-row.open .src-chev { transform: rotate(90deg); }
+  .deal-detail { padding: 2px 0 12px 40px; display: flex; flex-direction: column; gap: 6px; }
+  .deal-det-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-dim); gap: 12px; }
+  .deal-det-row b { color: var(--text); font-weight: 600; text-align: right; }
+  .deal-open-btn { margin-top: 8px; align-self: flex-start; padding: 8px 14px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .src-icon, .chan-icon, .deal-icon { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .src-body, .chan-body, .deal-body { flex: 1; min-width: 0; }
   .src-name, .chan-name, .deal-name { font-size: 12.5px; font-weight: 600; }
@@ -497,6 +506,10 @@
           <div class="card">
             <div class="eyebrow">По каналам</div>
             <div class="chan-chip-row" id="prog-channels"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Сделки в работе · нажми, чтобы раскрыть</div>
+            <div class="deal-list" id="prog-list"></div>
           </div>
         </div>
       </div>
@@ -886,6 +899,37 @@
     }).join('') || '<div class="traffic-row"><span>—</span></div>';
   }
 
+  function openDealLink(url) {
+    try {
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+        window.Telegram.WebApp.openLink(url); return;
+      }
+    } catch (e) {}
+    window.open(url, '_blank');
+  }
+  var DEAL_ICON = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 16 8 8l4 4 4-8" stroke="#C2596B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function makeDealRow(r, subText) {
+    var wrap = el('div', 'deal-group');
+    var row = el('div', 'deal-row deal-expandable');
+    row.innerHTML = '<div class="deal-icon" style="background:#FBEFF0;">' + DEAL_ICON + '</div>' +
+      '<div class="deal-body"><div class="deal-name">' + r.direction + '<span class="src-chev">▸</span></div>' +
+      '<div class="deal-sub">' + subText + '</div></div>' +
+      '<div class="deal-amt">' + rubFull(r.amount) + '</div>';
+    wrap.appendChild(row);
+    var det = el('div', 'deal-detail'); det.hidden = true;
+    det.innerHTML =
+      '<div class="deal-det-row"><span>Менеджер</span><b>' + (r.manager || '—') + '</b></div>' +
+      '<div class="deal-det-row"><span>Статус</span><b>' + (r.status || '—') + '</b></div>' +
+      '<div class="deal-det-row"><span>В работе</span><b>' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—') + '</b></div>' +
+      (has(r.tourists) ? '<div class="deal-det-row"><span>Туристов</span><b>' + r.tourists + '</b></div>' : '');
+    var btn = el('button', 'deal-open-btn', 'Открыть сделку в Битриксе →');
+    btn.addEventListener('click', function (e) { e.stopPropagation(); openDealLink(r.url); });
+    det.appendChild(btn);
+    wrap.appendChild(det);
+    row.addEventListener('click', function () { det.hidden = !det.hidden; row.classList.toggle('open'); });
+    return wrap;
+  }
+
   function renderClients() {
     var cl = STATE.data.clients;
     var card = document.getElementById('home-clients-card');
@@ -1129,11 +1173,8 @@
       var recentWrap = document.getElementById('paid-recent');
       recentWrap.innerHTML = '';
       paid.recent.forEach(function (r) {
-        var row = el('div', 'deal-row');
-        row.innerHTML = '<div class="deal-icon" style="background:#FBEFF0;"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 16 8 8l4 4 4-8" stroke="#C2596B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-          '<div class="deal-body"><div class="deal-name">' + r.direction + '</div><div class="deal-sub">' + ((r.channel && r.channel !== '—') ? r.channel + ' · ' : '') + 'оплата ' + fmtDateShort(r.date) + '</div></div>' +
-          '<div class="deal-amt">' + rubFull(r.amount) + '</div>';
-        recentWrap.appendChild(row);
+        var sub = ((r.channel && r.channel !== '—') ? r.channel + ' · ' : '') + 'оплата ' + fmtDateShort(r.date);
+        recentWrap.appendChild(makeDealRow(r, sub));
       });
 
       var prog = deals.in_progress;
@@ -1165,6 +1206,14 @@
         var chip = el('div', 'chan-chip', '<div class="chan-chip-val">' + num(c.count) + '</div><div class="chan-chip-label">' + c.channel + '</div>');
         progChanWrap.appendChild(chip);
       });
+      var progListWrap = document.getElementById('prog-list');
+      if (progListWrap) {
+        progListWrap.innerHTML = '';
+        (prog.list || []).forEach(function (r) {
+          var sub = ((r.channel && r.channel !== '—') ? r.channel + ' · ' : '') + 'в работе ' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—');
+          progListWrap.appendChild(makeDealRow(r, sub));
+        });
+      }
     }
   }
 
