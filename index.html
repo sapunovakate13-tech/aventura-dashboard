@@ -373,6 +373,7 @@
           <div class="traffic-stat"><div class="traffic-val" id="cl-ltv">—</div><div class="traffic-lbl">LTV на клиента</div></div>
           <div class="traffic-stat"><div class="traffic-val" id="cl-repeat">—</div><div class="traffic-lbl">Повторных</div></div>
           <div class="traffic-stat"><div class="traffic-val" id="cl-per">—</div><div class="traffic-lbl">Покупок/клиент</div></div>
+          <div class="traffic-stat"><div class="traffic-val" id="cl-new">—</div><div class="traffic-lbl" id="cl-new-lbl">Новых за период</div></div>
         </div>
       </div>
 
@@ -894,6 +895,10 @@
     document.getElementById('cl-ltv').textContent = rubFull(cl.ltv);
     document.getElementById('cl-repeat').textContent = num(cl.repeat_clients) + ' · ' + cl.repeat_percent + '%';
     document.getElementById('cl-per').textContent = String(cl.deals_per_client).replace('.', ',');
+    var isPrev = STATE.showPrevMonth;
+    var hd = isPrev ? STATE.data.previous_month : (STATE.data.home[STATE.period] || {});
+    var nc = hd.funnel_summary && hd.funnel_summary.new_clients;
+    document.getElementById('cl-new').textContent = has(nc) ? num(nc) : '—';
   }
 
   function renderHome() {
