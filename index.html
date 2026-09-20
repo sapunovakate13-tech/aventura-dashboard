@@ -74,6 +74,9 @@
   .traffic-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-dim); padding: 3px 0; gap: 8px; }
   .traffic-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .traffic-row b { color: var(--text); font-family: 'Oswald', sans-serif; font-weight: 600; flex: 0 0 auto; }
+  #trend-chart svg { width: 100%; height: auto; display: block; }
+  .trend-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11.5px; color: var(--text-dim); }
+  .trend-foot span b { color: var(--text); font-family: 'Oswald', sans-serif; font-weight: 600; }
 
   /* level tabs (Лиды/Сделки) */
   .level-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border-strong); }
@@ -362,6 +365,18 @@
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-sales">—</div><div class="rlabel">Продажи, чел.</div><div class="rconv" id="home-conv">—</div></div>
           <div class="rnode"><div class="rdot"></div><div class="rval" id="home-revenue">—</div><div class="rlabel">Выручка</div><div class="rconv" id="home-cycle">—</div></div>
         </div>
+      </div>
+
+      <div class="card" id="home-trends-card">
+        <div class="eyebrow muted">Динамика · 30 дней</div>
+        <div class="pills" id="trend-tabs" style="margin-bottom:10px;flex-wrap:wrap;">
+          <button class="pill active" data-metric="visits">Визиты</button>
+          <button class="pill" data-metric="leads">Лиды</button>
+          <button class="pill" data-metric="sales">Продажи</button>
+          <button class="pill" data-metric="spend">Расход</button>
+        </div>
+        <div id="trend-chart"></div>
+        <div class="trend-foot"><span id="trend-total">—</span><span id="trend-avg">—</span></div>
       </div>
 
       <div class="card" id="home-traffic-card">
@@ -934,6 +949,51 @@
     return wrap;
   }
 
+  var TREND_META = {
+    visits: { label: 'Визиты', color: '#7C93AE', money: false },
+    leads: { label: 'Лиды', color: '#C2596B', money: false },
+    sales: { label: 'Продажи', color: '#4F8C6B', money: false },
+    spend: { label: 'Расход', color: '#C79A46', money: true }
+  };
+  var trendMetric = 'visits';
+  function lineChart(vals, dates, color, money) {
+    var W = 328, H = 132, padL = 8, padR = 8, padT = 14, padB = 20;
+    var n = vals.length, max = Math.max.apply(null, vals.concat([1]));
+    var iw = W - padL - padR, ih = H - padT - padB;
+    var X = function (i) { return padL + (n <= 1 ? iw / 2 : i / (n - 1) * iw); };
+    var Y = function (v) { return padT + ih - (max ? v / max * ih : 0); };
+    var line = vals.map(function (v, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); }).join(' ');
+    var area = 'M' + X(0).toFixed(1) + ' ' + (padT + ih) + ' ' +
+      vals.map(function (v, i) { return 'L' + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); }).join(' ') +
+      ' L' + X(n - 1).toFixed(1) + ' ' + (padT + ih) + ' Z';
+    var grid = '';
+    [0, 0.5, 1].forEach(function (f) {
+      var yy = (padT + ih - f * ih).toFixed(1);
+      grid += '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy + '" stroke="#E6E9EE" stroke-width="1"/>';
+    });
+    var lx = X(n - 1).toFixed(1), ly = Y(vals[n - 1]).toFixed(1);
+    var df = function (iso) { var d = new Date(iso + 'T00:00:00'); return d.getDate() + '.' + (d.getMonth() + 1); };
+    var maxLbl = '<text x="' + padL + '" y="' + (padT - 3) + '" font-size="9" fill="#9AA0A8">' + (money ? compact(max) + ' ₽' : num(max)) + '</text>';
+    var xl = '<text x="' + padL + '" y="' + (H - 6) + '" font-size="9" fill="#9AA0A8">' + df(dates[0]) + '</text>' +
+      '<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="9" fill="#9AA0A8" text-anchor="end">' + df(dates[n - 1]) + '</text>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '">' + grid +
+      '<path d="' + area + '" fill="' + color + '" opacity="0.12"/>' +
+      '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + lx + '" cy="' + ly + '" r="3" fill="' + color + '"/>' + maxLbl + xl + '</svg>';
+  }
+  function renderTrends() {
+    var t = STATE.data.trends;
+    var card = document.getElementById('home-trends-card');
+    if (!t || !t.days || !t.days.length) { if (card) card.hidden = true; return; }
+    if (card) card.hidden = false;
+    var m = TREND_META[trendMetric], vals = t[trendMetric] || [];
+    document.getElementById('trend-chart').innerHTML = lineChart(vals, t.days, m.color, m.money);
+    var total = vals.reduce(function (a, b) { return a + b; }, 0);
+    var avg = vals.length ? Math.round(total / vals.length) : 0;
+    document.getElementById('trend-total').innerHTML = 'Всего за 30 дней: <b>' + (m.money ? moneyFull(total) : num(total)) + '</b>';
+    document.getElementById('trend-avg').innerHTML = 'В среднем/день: <b>' + (m.money ? moneyFull(avg) : num(avg)) + '</b>';
+  }
+
   function renderClients() {
     var cl = STATE.data.clients;
     var card = document.getElementById('home-clients-card');
@@ -1003,6 +1063,7 @@
 
     renderRings(d);
 
+    renderTrends();
     renderTraffic(d.traffic);
     renderClients();
     document.getElementById('home-leads').textContent = compact(d.funnel_summary.leads);
@@ -1451,6 +1512,14 @@
     apiPost('/api/thresholds/set', { thresholds: patch }).then(function (r) { return r.json(); })
       .then(function () { reloadData(function () { flashSaveNote('thresholds-save-note'); }); })
       .catch(function () { flashSaveNote('thresholds-save-note'); });
+  });
+
+  document.querySelectorAll('#trend-tabs .pill').forEach(function (b) {
+    b.addEventListener('click', function () {
+      trendMetric = b.getAttribute('data-metric');
+      document.querySelectorAll('#trend-tabs .pill').forEach(function (t) { t.classList.toggle('active', t === b); });
+      renderTrends();
+    });
   });
 
   loadData();
