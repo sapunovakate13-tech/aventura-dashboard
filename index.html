@@ -74,7 +74,9 @@
   .traffic-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-dim); padding: 3px 0; gap: 8px; }
   .traffic-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .traffic-row b { color: var(--text); font-family: 'Oswald', sans-serif; font-weight: 600; flex: 0 0 auto; }
-  #trend-chart svg { width: 100%; height: auto; display: block; }
+  #trend-chart svg { width: 100%; height: auto; display: block; cursor: pointer; }
+  .trend-readout { font-size: 12.5px; color: var(--text-dim); margin-bottom: 6px; min-height: 16px; }
+  .trend-readout b { color: var(--text); font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14px; }
   .trend-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11.5px; color: var(--text-dim); }
   .trend-foot span b { color: var(--text); font-family: 'Oswald', sans-serif; font-weight: 600; }
 
@@ -375,6 +377,7 @@
           <button class="pill" data-metric="sales">Продажи</button>
           <button class="pill" data-metric="spend">Расход</button>
         </div>
+        <div class="trend-readout" id="trend-readout">Нажми на график, чтобы увидеть цифру за день</div>
         <div id="trend-chart"></div>
         <div class="trend-foot"><span id="trend-total">—</span><span id="trend-avg">—</span></div>
       </div>
@@ -955,31 +958,50 @@
     sales: { label: 'Продажи', color: '#4F8C6B', money: false },
     spend: { label: 'Расход', color: '#C79A46', money: true }
   };
-  var trendMetric = 'visits';
-  function lineChart(vals, dates, color, money) {
-    var W = 328, H = 132, padL = 8, padR = 8, padT = 14, padB = 20;
+  var trendMetric = 'visits', trendSel = -1;
+  var TW = 328, TH = 138, TPADL = 40, TPADR = 10, TPADT = 14, TPADB = 20;
+  function _axisFmt(v, money) {
+    if (money) return v >= 1000 ? compact(v) : String(Math.round(v));
+    return v >= 1000 ? compact(v) : String(Math.round(v));
+  }
+  function lineChart(vals, dates, color, money, sel) {
     var n = vals.length, max = Math.max.apply(null, vals.concat([1]));
-    var iw = W - padL - padR, ih = H - padT - padB;
-    var X = function (i) { return padL + (n <= 1 ? iw / 2 : i / (n - 1) * iw); };
-    var Y = function (v) { return padT + ih - (max ? v / max * ih : 0); };
+    var iw = TW - TPADL - TPADR, ih = TH - TPADT - TPADB;
+    var X = function (i) { return TPADL + (n <= 1 ? iw / 2 : i / (n - 1) * iw); };
+    var Y = function (v) { return TPADT + ih - (max ? v / max * ih : 0); };
     var line = vals.map(function (v, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); }).join(' ');
-    var area = 'M' + X(0).toFixed(1) + ' ' + (padT + ih) + ' ' +
+    var area = 'M' + X(0).toFixed(1) + ' ' + (TPADT + ih) + ' ' +
       vals.map(function (v, i) { return 'L' + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); }).join(' ') +
-      ' L' + X(n - 1).toFixed(1) + ' ' + (padT + ih) + ' Z';
+      ' L' + X(n - 1).toFixed(1) + ' ' + (TPADT + ih) + ' Z';
     var grid = '';
-    [0, 0.5, 1].forEach(function (f) {
-      var yy = (padT + ih - f * ih).toFixed(1);
-      grid += '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy + '" stroke="#E6E9EE" stroke-width="1"/>';
+    [0, 0.5, 1].forEach(function (f) {                       // сетка + подписи оси Y слева
+      var yy = (TPADT + ih - f * ih);
+      grid += '<line x1="' + TPADL + '" y1="' + yy.toFixed(1) + '" x2="' + (TW - TPADR) + '" y2="' + yy.toFixed(1) + '" stroke="#E6E9EE" stroke-width="1"/>' +
+        '<text x="' + (TPADL - 5) + '" y="' + (yy + 3).toFixed(1) + '" font-size="9" fill="#9AA0A8" text-anchor="end">' + _axisFmt(max * f, money) + '</text>';
     });
-    var lx = X(n - 1).toFixed(1), ly = Y(vals[n - 1]).toFixed(1);
     var df = function (iso) { var d = new Date(iso + 'T00:00:00'); return d.getDate() + '.' + (d.getMonth() + 1); };
-    var maxLbl = '<text x="' + padL + '" y="' + (padT - 3) + '" font-size="9" fill="#9AA0A8">' + (money ? compact(max) + ' ₽' : num(max)) + '</text>';
-    var xl = '<text x="' + padL + '" y="' + (H - 6) + '" font-size="9" fill="#9AA0A8">' + df(dates[0]) + '</text>' +
-      '<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="9" fill="#9AA0A8" text-anchor="end">' + df(dates[n - 1]) + '</text>';
-    return '<svg viewBox="0 0 ' + W + ' ' + H + '">' + grid +
+    var xl = '<text x="' + TPADL + '" y="' + (TH - 6) + '" font-size="9" fill="#9AA0A8">' + df(dates[0]) + '</text>' +
+      '<text x="' + (TW - TPADR) + '" y="' + (TH - 6) + '" font-size="9" fill="#9AA0A8" text-anchor="end">' + df(dates[n - 1]) + '</text>';
+    var marker = '';
+    if (sel != null && sel >= 0 && sel < n) {                // крестик и точка на выбранном дне
+      var sx = X(sel).toFixed(1), sy = Y(vals[sel]).toFixed(1);
+      marker = '<line x1="' + sx + '" y1="' + TPADT + '" x2="' + sx + '" y2="' + (TPADT + ih) + '" stroke="' + color + '" stroke-width="1" opacity="0.4"/>' +
+        '<circle cx="' + sx + '" cy="' + sy + '" r="3.5" fill="' + color + '"/>';
+    }
+    return '<svg viewBox="0 0 ' + TW + ' ' + TH + '">' + grid +
       '<path d="' + area + '" fill="' + color + '" opacity="0.12"/>' +
       '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
-      '<circle cx="' + lx + '" cy="' + ly + '" r="3" fill="' + color + '"/>' + maxLbl + xl + '</svg>';
+      marker + xl + '</svg>';
+  }
+  function _trendReadout(t, m, vals, sel) {
+    var ro = document.getElementById('trend-readout');
+    if (sel != null && sel >= 0 && sel < vals.length) {
+      var d = new Date(t.days[sel] + 'T00:00:00');
+      var ds = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+      ro.innerHTML = '<b>' + (m.money ? moneyFull(vals[sel]) : num(vals[sel])) + '</b> · ' + m.label.toLowerCase() + ' · ' + ds;
+    } else {
+      ro.innerHTML = 'Нажми на график, чтобы увидеть цифру за день';
+    }
   }
   function renderTrends() {
     var t = STATE.data.trends;
@@ -987,11 +1009,24 @@
     if (!t || !t.days || !t.days.length) { if (card) card.hidden = true; return; }
     if (card) card.hidden = false;
     var m = TREND_META[trendMetric], vals = t[trendMetric] || [];
-    document.getElementById('trend-chart').innerHTML = lineChart(vals, t.days, m.color, m.money);
+    document.getElementById('trend-chart').innerHTML = lineChart(vals, t.days, m.color, m.money, trendSel);
+    _trendReadout(t, m, vals, trendSel);
     var total = vals.reduce(function (a, b) { return a + b; }, 0);
     var avg = vals.length ? Math.round(total / vals.length) : 0;
     document.getElementById('trend-total').innerHTML = 'Всего за 30 дней: <b>' + (m.money ? moneyFull(total) : num(total)) + '</b>';
     document.getElementById('trend-avg').innerHTML = 'В среднем/день: <b>' + (m.money ? moneyFull(avg) : num(avg)) + '</b>';
+  }
+  function _trendClick(e) {
+    var t = STATE.data.trends; if (!t || !t.days) return;
+    var n = t.days.length;
+    var svg = document.getElementById('trend-chart').querySelector('svg'); if (!svg) return;
+    var r = svg.getBoundingClientRect();
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    var xv = cx / r.width * TW;                              // в координаты viewBox
+    var iw = TW - TPADL - TPADR;
+    var idx = Math.round((xv - TPADL) / iw * (n - 1));
+    trendSel = Math.max(0, Math.min(n - 1, idx));
+    renderTrends();
   }
 
   function renderClients() {
@@ -1521,6 +1556,10 @@
       renderTrends();
     });
   });
+  (function () {
+    var tc = document.getElementById('trend-chart');
+    if (tc) { tc.addEventListener('click', _trendClick); }
+  })();
 
   loadData();
 })();
