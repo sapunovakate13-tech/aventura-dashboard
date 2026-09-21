@@ -968,6 +968,7 @@
       '<div class="deal-det-row"><span>В работе</span><b>' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—') + '</b></div>' +
       (r.created ? '<div class="deal-det-row"><span>Дата заявки</span><b>' + fmtDateShort(r.created) + '</b></div>' : '') +
       (has(r.tourists) ? '<div class="deal-det-row"><span>Туристов</span><b>' + r.tourists + '</b></div>' : '') +
+      (has(r.cycle_days) ? '<div class="deal-det-row"><span>Цикл сделки</span><b>' + r.cycle_days + ' дн.</b></div>' : '') +
       '<div class="deal-det-row"><span>UTM-кампания</span><b>' + esc(r.utm_campaign || '—') + '</b></div>';
     var btn = el('button', 'deal-open-btn', 'Открыть сделку в Битриксе →');
     btn.addEventListener('click', function (e) { e.stopPropagation(); openDealLink(r.url); });
@@ -1127,6 +1128,7 @@
       tile('Сделки в работе', num(m.inprog_count)) +
       tile('Конв. в сделку', has(m.conv_deal) ? String(m.conv_deal).replace('.', ',') + '%' : '—') +
       tile('Конв. в человека', has(m.conv_person) ? String(m.conv_person).replace('.', ',') + '%' : '—') +
+      tile('Цикл сделки', has(m.cycle_days) ? m.cycle_days + ' дн.' : '—') +
       tile('Сумма оплач.', rubFull(m.paid_sum)) +
       tile('Сумма в работе', rubFull(m.inprog_sum)) +
       '</div>';
@@ -1172,11 +1174,19 @@
       var pd = c.paid_deals || [], ip = c.inprog_deals || [], lds = c.lead_list || [];
       if (pd.length) {
         sub.appendChild(el('div', 'tt-subhead', 'Оплаченные сделки · ' + pd.length));
-        pd.forEach(function (r) { sub.appendChild(makeDealRow(r, 'оплата ' + fmtDateShort(r.date))); });
+        pd.forEach(function (r) {
+          var st = 'оплата ' + fmtDateShort(r.date);
+          if (r.other_period) st += ' · лид другого периода, создан ' + fmtDateShort(r.created);
+          sub.appendChild(makeDealRow(r, st));
+        });
       }
       if (ip.length) {
         sub.appendChild(el('div', 'tt-subhead', 'Сделки в работе · ' + ip.length));
-        ip.forEach(function (r) { sub.appendChild(makeDealRow(r, 'в работе ' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—'))); });
+        ip.forEach(function (r) {
+          var st = 'в работе ' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—');
+          if (r.other_period) st += ' · создан ' + fmtDateShort(r.created);
+          sub.appendChild(makeDealRow(r, st));
+        });
       }
       sub.appendChild(el('div', 'tt-subhead', 'Лиды · ' + lds.length));
       lds.forEach(function (r) { sub.appendChild(ttLeadRow(r)); });
