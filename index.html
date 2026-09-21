@@ -594,7 +594,7 @@
         <div id="access-hint" style="font-size:11px;color:var(--text-faint);margin-top:8px;">Доступ только к дашборду. К Клаве и другим данным он не даёт.</div>
       </div>
 
-      <div class="card">
+      <div class="card" id="plan-card">
         <div class="eyebrow muted">План месяца <span id="plan-month-label" style="opacity:.6;font-weight:400;"></span></div>
         <div class="edit-row">
           <div class="edit-row-label">План по выручке</div>
@@ -609,7 +609,7 @@
         <div class="plan-hint">Заводите заново в начале каждого месяца — прошлые месяцы не затрагиваются.</div>
       </div>
 
-      <div class="card">
+      <div class="card" id="thresholds-card">
         <div class="eyebrow muted">Пороги алертов</div>
         <div id="profile-thresholds"></div>
         <button class="save-btn" id="thresholds-save-btn">Сохранить пороги</button>
@@ -732,6 +732,12 @@
     if (cls) e.className = cls;
     if (html !== undefined) e.innerHTML = html;
     return e;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   function severityIconPath() {
@@ -1066,9 +1072,10 @@
     var paceMarker = document.getElementById('home-pace');
     var note = document.getElementById('home-pace-note');
     var planCard = document.getElementById('home-plan-card');
-    // если план не задан — блок кликабелен и ведёт в профиль задать план
+    // если план не задан — блок кликабелен и ведёт в профиль задать план (только у админа)
+    var canEditPlan = (STATE.role === 'admin');
     if (planCard) {
-      if (!hasPlan && !isPrev) {
+      if (!hasPlan && !isPrev && canEditPlan) {
         planCard.classList.add('tappable');
         planCard.onclick = function () { goTo('profile'); };
       } else {
@@ -1076,7 +1083,7 @@
         planCard.onclick = null;
       }
     }
-    if (!hasPlan && !isPrev) {
+    if (!hasPlan && !isPrev && canEditPlan) {
       paceMarker.hidden = true;
       note.hidden = false;
       note.className = 'foot-note';
@@ -1362,7 +1369,8 @@
     var dispName = STATE.userName || p.user_name || '?';
     document.getElementById('profile-avatar').textContent = dispName.charAt(0);
     document.getElementById('profile-name').textContent = dispName;
-    document.getElementById('profile-role').textContent = (STATE.role === 'admin' ? 'Администратор' : 'Доступ к дашборду');
+    document.getElementById('profile-role').textContent = (STATE.role === 'admin' ? 'Администратор' : 'Только просмотр');
+    var isAdmin = (STATE.role === 'admin');
 
     var sourcesWrap = document.getElementById('profile-sources');
     sourcesWrap.innerHTML = '';
@@ -1378,12 +1386,16 @@
       sourcesWrap.appendChild(row);
     });
 
-    if (STATE.role === 'admin') {
+    if (isAdmin) {
       document.getElementById('access-card').style.display = 'block';
       renderAccess();
     } else {
       document.getElementById('access-card').style.display = 'none';
     }
+    // редактирование плана и порогов — только у админа; остальным просто не показываем
+    document.getElementById('plan-card').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('thresholds-card').style.display = isAdmin ? 'block' : 'none';
+    if (!isAdmin) return;
 
     var thWrap = document.getElementById('profile-thresholds');
     thWrap.innerHTML = '';
@@ -1424,35 +1436,46 @@
         row.appendChild(accessBtn('✗', '#C2596B', function () { accessAction('/api/access/reject', p.id); }));
         pw.appendChild(row);
       });
-      // выданные
-      if (!(j.allowed || []).length) {
-        aw.innerHTML = '<div class="row-sub" style="padding:6px 0;">Пока доступ только у тебя. Добавь людей ниже или подтверди заявки.</div>';
+      // кому открыт доступ
+      var members = j.members || [];
+      if (!members.length) {
+        aw.innerHTML = '<div class="row-sub" style="padding:6px 0;">Пока доступ только у тебя. Выдай доступ по @username ниже или подтверди заявки.</div>';
       }
-      (j.allowed || []).forEach(function (id) {
+      members.forEach(function (m) {
         var row = el('div', 'row');
         row.style.alignItems = 'center';
-        row.innerHTML = '<div class="row-body"><div class="row-name">ID ' + id + '</div><div class="row-sub">есть доступ к дашборду</div></div>';
-        row.appendChild(accessBtn('Убрать', '#C2596B', function () { accessAction('/api/access/remove', id); }));
+        var uname = m.username ? '@' + m.username : '';
+        var title = m.name || uname || ('ID ' + m.id);
+        var sub = m.id
+          ? ((uname && m.name ? uname + ' · ' : (uname ? '' : '')) + 'Просмотр')
+          : ((uname ? uname + ' · ' : '') + 'Просмотр · ждёт первого входа');
+        row.innerHTML = '<div class="row-body"><div class="row-name">' + esc(title) + '</div><div class="row-sub">' + esc(sub) + '</div></div>';
+        row.appendChild(accessBtn('Убрать', '#C2596B', function () {
+          accessAction('/api/access/remove', m.id ? { user_id: m.id } : { username: m.username });
+        }));
         aw.appendChild(row);
       });
-      // добавить по ID
+      // выдать доступ по @username
       var addw = document.getElementById('access-add');
       addw.innerHTML = '';
       var inp = el('input', 'edit-input');
-      inp.type = 'number'; inp.placeholder = 'Telegram ID'; inp.inputMode = 'numeric';
-      inp.style.cssText = 'width:130px;';
+      inp.type = 'text'; inp.placeholder = '@username'; inp.autocapitalize = 'off'; inp.autocomplete = 'off';
+      inp.style.cssText = 'width:150px;';
       var wrap = el('div', 'edit-row');
-      wrap.innerHTML = '<div class="edit-row-label">Добавить по ID</div>';
+      wrap.innerHTML = '<div class="edit-row-label">Выдать доступ</div>';
       var iw = el('div', 'edit-row-input-wrap'); iw.appendChild(inp);
-      iw.appendChild(accessBtn('Добавить', '#241F22', function () {
-        var v = parseInt(inp.value, 10); if (v) accessAction('/api/access/add', v);
+      iw.appendChild(accessBtn('Дать', '#241F22', function () {
+        var v = (inp.value || '').trim().replace(/^@/, '');
+        if (v) { accessAction('/api/access/add', { username: v }); inp.value = ''; }
       }));
       wrap.appendChild(iw); addw.appendChild(wrap);
     });
   }
 
-  function accessAction(path, uid) {
-    apiPost(path, { user_id: uid }).then(function (r) { return r.json(); }).then(function () { renderAccess(); });
+  function accessAction(path, payload) {
+    // payload: { user_id } или { username }; для заявок передаём число напрямую
+    var body = (typeof payload === 'object') ? payload : { user_id: payload };
+    apiPost(path, body).then(function (r) { return r.json(); }).then(function () { renderAccess(); });
   }
 
   function flashSaveNote(id) {
