@@ -192,6 +192,13 @@
   .src-row.open .src-chev { transform: rotate(90deg); }
   .src-sublist { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 10px 42px; }
   .src-sublist.deal-sublist { padding: 2px 0 8px 8px; gap: 0; }
+  .tt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 4px 0 2px; }
+  .tt-tile { background: #F4F6FA; border-radius: 10px; padding: 8px 6px; text-align: center; }
+  .tt-tile-val { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14px; }
+  .tt-tile-lbl { font-size: 9px; color: var(--text-dim); margin-top: 2px; line-height: 1.2; }
+  .tt-state { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 4px; vertical-align: middle; }
+  .tt-state.paid { background: #DFF0E6; color: #2F7C52; }
+  .tt-state.inprog { background: #FBEFD6; color: #9A6A16; }
   .src-subrow { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-dim); }
   .src-subname { position: relative; padding-left: 12px; }
   .src-subname::before { content: ''; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); transform: translateY(-50%); }
@@ -539,30 +546,38 @@
     </section>
 
     <!-- ===== ALERTS ===== -->
-    <section class="screen" id="screen-alerts">
+    <section class="screen" id="screen-traffic">
       <div class="top-bar">
         <button class="back-btn" data-go="home">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3.5 5 8l5 4.5" stroke="#241F22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="top-title">Алерты</div>
-          <div class="badge" id="alerts-badge">—</div>
+        <div class="top-title">Трафик</div>
+      </div>
+
+      <div class="pills" data-period-group style="margin-bottom:12px;flex-wrap:wrap;"></div>
+
+      <div class="card" id="tt-trends-card">
+        <div class="eyebrow muted">Динамика за период</div>
+        <div class="pills" id="tt-trend-tabs" style="margin-bottom:10px;flex-wrap:wrap;">
+          <button class="pill active" data-ttmetric="visits">Визиты</button>
+          <button class="pill" data-ttmetric="leads">Лиды</button>
+          <button class="pill" data-ttmetric="sales">Продажи</button>
+          <button class="pill" data-ttmetric="spend">Расход</button>
         </div>
+        <div class="trend-readout" id="tt-trend-readout">Нажми на график, чтобы увидеть цифру за день</div>
+        <div id="tt-trend-chart"></div>
+        <div class="trend-foot"><span id="tt-trend-total">—</span><span id="tt-trend-avg">—</span></div>
       </div>
 
-      <div class="pills" id="alert-filters">
-        <button class="pill active" data-filter="all">Все</button>
-        <button class="pill" data-filter="critical">Критично</button>
-        <button class="pill" data-filter="warning">Внимание</button>
-        <button class="pill" data-filter="info">Инфо</button>
+      <div class="card">
+        <div class="eyebrow">Итого по всем каналам</div>
+        <div id="tt-totals"></div>
       </div>
 
-      <div class="rules-card">
-        <div class="rules-title">Правила алертов · приходят в Telegram</div>
-        <div id="alert-rules"></div>
+      <div class="card">
+        <div class="eyebrow">Каналы · нажми, чтобы раскрыть метрики и лиды</div>
+        <div id="tt-channels"></div>
       </div>
-
-      <div class="timeline" id="alerts-timeline"></div>
     </section>
 
     <!-- ===== PROFILE ===== -->
@@ -629,8 +644,8 @@
       <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M3 4h14l-5 6.5V16l-4 1.5v-7L3 4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
       <div class="nav-dot"></div>
     </button>
-    <button class="nav-item" data-go="alerts">
-      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M6 8a4 4 0 0 1 8 0c0 3.2 1.2 4.4 1.5 5H4.5C4.8 12.4 6 11.2 6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.3 15.5a1.7 1.7 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <button class="nav-item" data-go="traffic">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M3 17V3M3 17h14M6.5 13.5l3-3.5 3 2 4-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <div class="nav-dot"></div>
     </button>
     <button class="nav-item" data-go="profile">
@@ -893,7 +908,7 @@
   function renderAll() {
     renderHome();
     renderFunnel();
-    renderAlerts();
+    renderTrafficTeam();
     renderProfile();
   }
 
@@ -1067,6 +1082,105 @@
     var idx = Math.round((xv - TPADL) / iw * (n - 1));
     trendSel = Math.max(0, Math.min(n - 1, idx));
     renderTrends();
+  }
+
+  // ---------- ВКЛАДКА «ТРАФИК» (для команды трафика) ----------
+  var ttMetric = 'visits', ttSel = -1, ttTrendsData = null;
+  function renderTTTrends(t) {
+    ttTrendsData = t || null;
+    var card = document.getElementById('tt-trends-card');
+    if (!t || !t.days || !t.days.length) { if (card) card.hidden = true; return; }
+    card.hidden = false;
+    var m = TREND_META[ttMetric], vals = t[ttMetric] || [];
+    document.getElementById('tt-trend-chart').innerHTML = lineChart(vals, t.days, m.color, m.money, ttSel);
+    var ro = document.getElementById('tt-trend-readout');
+    if (ttSel >= 0 && ttSel < vals.length) {
+      var d = new Date(t.days[ttSel] + 'T00:00:00');
+      ro.innerHTML = '<b>' + (m.money ? moneyFull(vals[ttSel]) : num(vals[ttSel])) + '</b> · ' + m.label.toLowerCase() +
+        ' · ' + d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    } else { ro.innerHTML = 'Нажми на график, чтобы увидеть цифру за день'; }
+    var total = vals.reduce(function (a, b) { return a + b; }, 0);
+    var avg = vals.length ? Math.round(total / vals.length) : 0;
+    document.getElementById('tt-trend-total').innerHTML = 'Всего за период: <b>' + (m.money ? moneyFull(total) : num(total)) + '</b>';
+    document.getElementById('tt-trend-avg').innerHTML = 'В среднем/день: <b>' + (m.money ? moneyFull(avg) : num(avg)) + '</b>';
+  }
+  function _ttTrendClick(e) {
+    var t = ttTrendsData; if (!t || !t.days) return;
+    var n = t.days.length;
+    var svg = document.getElementById('tt-trend-chart').querySelector('svg'); if (!svg) return;
+    var r = svg.getBoundingClientRect();
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    var xv = cx / r.width * TW, iw = TW - TPADL - TPADR;
+    ttSel = Math.max(0, Math.min(n - 1, Math.round((xv - TPADL) / iw * (n - 1))));
+    renderTTTrends(t);
+  }
+  function ttMetricsGrid(m) {
+    function tile(label, val) {
+      return '<div class="tt-tile"><div class="tt-tile-val">' + val + '</div><div class="tt-tile-lbl">' + label + '</div></div>';
+    }
+    return '<div class="tt-grid">' +
+      tile('Лиды', num(m.leads)) +
+      tile('Стоимость лида', dashRub(m.cpl)) +
+      tile('Стоимость клиента', dashRub(m.cpo)) +
+      tile('Сделки оплач.', num(m.paid_count)) +
+      tile('Сделки в работе', num(m.inprog_count)) +
+      tile('Конв. в сделку', has(m.conv_deal) ? String(m.conv_deal).replace('.', ',') + '%' : '—') +
+      tile('Конв. в человека', has(m.conv_person) ? String(m.conv_person).replace('.', ',') + '%' : '—') +
+      tile('Сумма оплач.', rubFull(m.paid_sum)) +
+      tile('Сумма в работе', rubFull(m.inprog_sum)) +
+      '</div>';
+  }
+  function ttLeadRow(r) {
+    var wrap = el('div', 'deal-group');
+    var badge = r.deal_state === 'paid' ? '<span class="tt-state paid">оплачено</span>'
+      : r.deal_state === 'inprog' ? '<span class="tt-state inprog">в работе</span>' : '';
+    var row = el('div', 'deal-row deal-expandable');
+    row.innerHTML = '<div class="deal-body"><div class="deal-name">' + esc(r.name) + badge + '<span class="src-chev">▸</span></div>' +
+      '<div class="deal-sub">' + esc(r.status || '—') + ' · ' + fmtDateShort(r.created) + '</div></div>';
+    wrap.appendChild(row);
+    var det = el('div', 'deal-detail'); det.hidden = true;
+    det.innerHTML =
+      '<div class="deal-det-row"><span>Менеджер</span><b>' + esc(r.manager || '—') + '</b></div>' +
+      '<div class="deal-det-row"><span>Дата создания</span><b>' + fmtDateShort(r.created) + '</b></div>' +
+      '<div class="deal-det-row"><span>Дней в работе</span><b>' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—') + '</b></div>' +
+      '<div class="deal-det-row"><span>Кампания</span><b>' + esc(r.campaign || '—') + '</b></div>' +
+      '<div class="deal-det-row"><span>Статус</span><b>' + esc(r.status || '—') + '</b></div>';
+    var btn = el('button', 'deal-open-btn', 'Открыть лид в Битриксе →');
+    btn.addEventListener('click', function (e) { e.stopPropagation(); openDealLink(r.url); });
+    det.appendChild(btn);
+    wrap.appendChild(det);
+    row.addEventListener('click', function () { det.hidden = !det.hidden; row.classList.toggle('open'); });
+    return wrap;
+  }
+  function renderTTChannels(wrap, channels) {
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    if (!channels || !channels.length) {
+      wrap.innerHTML = '<div class="row-sub" style="padding:6px 0;">Нет данных за период</div>';
+      return;
+    }
+    channels.forEach(function (c) {
+      var group = el('div', 'src-group');
+      var row = el('div', 'src-row src-expandable');
+      row.innerHTML = '<div class="src-body"><div class="src-name">' + esc(c.channel) + '<span class="src-chev">▸</span></div></div>' +
+        '<div class="src-right"><div class="src-val">' + num(c.leads) + '</div>' +
+        '<div class="src-share">' + num(c.paid_count) + ' опл · ' + num(c.inprog_count) + ' в раб.</div></div>';
+      group.appendChild(row);
+      var sub = el('div', 'src-sublist deal-sublist'); sub.hidden = true;
+      var mg = el('div', '', ttMetricsGrid(c)); sub.appendChild(mg);
+      (c.lead_list || []).forEach(function (r) { sub.appendChild(ttLeadRow(r)); });
+      group.appendChild(sub);
+      row.addEventListener('click', function () { sub.hidden = !sub.hidden; row.classList.toggle('open'); });
+      wrap.appendChild(group);
+    });
+  }
+  function renderTrafficTeam() {
+    var hd = STATE.data && STATE.data.home && STATE.data.home[STATE.period];
+    var tt = hd && hd.traffic_team;
+    if (!tt) return;
+    renderTTTrends(tt.trends);
+    document.getElementById('tt-totals').innerHTML = ttMetricsGrid(tt.totals);
+    renderTTChannels(document.getElementById('tt-channels'), tt.channels);
   }
 
   function renderClients() {
@@ -1517,7 +1631,7 @@
     STATE.screen = screen;
     document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('active', s.id === 'screen-' + screen); });
     document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-go') === screen); });
-    if (screen === 'alerts') renderAlerts();
+    if (screen === 'traffic') renderTrafficTeam();
   }
 
   document.querySelectorAll('[data-go]').forEach(function (b) {
@@ -1610,6 +1724,18 @@
   (function () {
     var tc = document.getElementById('trend-chart');
     if (tc) { tc.addEventListener('click', _trendClick); }
+  })();
+
+  document.querySelectorAll('#tt-trend-tabs .pill').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ttMetric = b.getAttribute('data-ttmetric'); ttSel = -1;
+      document.querySelectorAll('#tt-trend-tabs .pill').forEach(function (t) { t.classList.toggle('active', t === b); });
+      renderTTTrends(ttTrendsData);
+    });
+  });
+  (function () {
+    var tc = document.getElementById('tt-trend-chart');
+    if (tc) { tc.addEventListener('click', _ttTrendClick); }
   })();
 
   loadData();
