@@ -191,6 +191,7 @@
   .src-chev { display: inline-block; margin-left: 5px; font-size: 9px; color: var(--text-faint); transition: transform 0.15s; }
   .src-row.open .src-chev { transform: rotate(90deg); }
   .src-sublist { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 10px 42px; }
+  .src-sublist.deal-sublist { padding: 2px 0 8px 8px; gap: 0; }
   .src-subrow { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-dim); }
   .src-subname { position: relative; padding-left: 12px; }
   .src-subname::before { content: ''; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); transform: translateY(-50%); }
@@ -500,8 +501,8 @@
             </div>
           </div>
           <div class="card">
-            <div class="eyebrow">По каналам</div>
-            <div class="chan-chip-row" id="paid-channels"></div>
+            <div class="eyebrow">По каналам · нажми канал, чтобы раскрыть сделки</div>
+            <div id="paid-channels"></div>
           </div>
           <div class="card">
             <div class="eyebrow">Последние оплаты</div>
@@ -526,8 +527,8 @@
             <div class="stage-list" id="prog-stages"></div>
           </div>
           <div class="card">
-            <div class="eyebrow">По каналам</div>
-            <div class="chan-chip-row" id="prog-channels"></div>
+            <div class="eyebrow">По каналам · нажми канал, чтобы раскрыть сделки</div>
+            <div id="prog-channels"></div>
           </div>
           <div class="card">
             <div class="eyebrow">Сделки в работе · нажми, чтобы раскрыть</div>
@@ -958,6 +959,37 @@
     return wrap;
   }
 
+  // разворачиваемые строки по каналам (как в лидах): канал → список сделок внутри
+  function renderDealChannels(wrap, byChannel, subLabelFn) {
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    if (!byChannel || !byChannel.length) {
+      wrap.innerHTML = '<div class="src-sub-empty" style="font-size:12px;color:var(--text-faint);padding:6px 0;">Нет сделок за период</div>';
+      return;
+    }
+    byChannel.forEach(function (c) {
+      var deals = c.deals || [];
+      var canExpand = deals.length > 0;
+      var group = el('div', 'src-group');
+      var row = el('div', 'src-row' + (canExpand ? ' src-expandable' : ''));
+      row.innerHTML = '<div class="src-body"><div class="src-name">' + esc(c.channel) +
+        (canExpand ? '<span class="src-chev">▸</span>' : '') + '</div></div>' +
+        '<div class="src-right"><div class="src-val">' + num(c.count) + '</div></div>';
+      group.appendChild(row);
+      if (canExpand) {
+        var subWrap = el('div', 'src-sublist deal-sublist');
+        subWrap.hidden = true;
+        deals.forEach(function (r) { subWrap.appendChild(makeDealRow(r, subLabelFn(r))); });
+        group.appendChild(subWrap);
+        row.addEventListener('click', function () {
+          subWrap.hidden = !subWrap.hidden;
+          row.classList.toggle('open');
+        });
+      }
+      wrap.appendChild(group);
+    });
+  }
+
   var TREND_META = {
     visits: { label: 'Визиты', color: '#7C93AE', money: false },
     leads: { label: 'Лиды', color: '#C2596B', money: false },
@@ -1271,11 +1303,8 @@
       document.getElementById('paid-count').textContent = num(paid.count) + ' ' + pluralWord(paid.count, 'сделка', 'сделки', 'сделок')
         + (has(paid.tourists) ? ' · ' + num(paid.tourists) + ' ' + pluralWord(paid.tourists, 'турист', 'туриста', 'туристов') : '');
       document.getElementById('paid-amount').textContent = rubFull(paid.total_amount);
-      var paidChanWrap = document.getElementById('paid-channels');
-      paidChanWrap.innerHTML = '';
-      paid.by_channel.forEach(function (c) {
-        var chip = el('div', 'chan-chip', '<div class="chan-chip-val">' + num(c.count) + '</div><div class="chan-chip-label">' + c.channel + '</div>');
-        paidChanWrap.appendChild(chip);
+      renderDealChannels(document.getElementById('paid-channels'), paid.by_channel, function (r) {
+        return 'оплата ' + fmtDateShort(r.date);
       });
       var recentWrap = document.getElementById('paid-recent');
       recentWrap.innerHTML = '';
@@ -1306,11 +1335,8 @@
           '<div class="stage-bar-track"><div class="stage-bar-fill" style="width:' + Math.round(s.count / maxCount * 100) + '%;"></div></div>';
         stageWrap.appendChild(row);
       });
-      var progChanWrap = document.getElementById('prog-channels');
-      progChanWrap.innerHTML = '';
-      prog.by_channel.forEach(function (c) {
-        var chip = el('div', 'chan-chip', '<div class="chan-chip-val">' + num(c.count) + '</div><div class="chan-chip-label">' + c.channel + '</div>');
-        progChanWrap.appendChild(chip);
+      renderDealChannels(document.getElementById('prog-channels'), prog.by_channel, function (r) {
+        return 'в работе ' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—');
       });
       var progListWrap = document.getElementById('prog-list');
       if (progListWrap) {
