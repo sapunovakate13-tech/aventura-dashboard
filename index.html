@@ -950,7 +950,9 @@
       '<div class="deal-det-row"><span>Менеджер</span><b>' + (r.manager || '—') + '</b></div>' +
       '<div class="deal-det-row"><span>Статус</span><b>' + (r.status || '—') + '</b></div>' +
       '<div class="deal-det-row"><span>В работе</span><b>' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—') + '</b></div>' +
-      (has(r.tourists) ? '<div class="deal-det-row"><span>Туристов</span><b>' + r.tourists + '</b></div>' : '');
+      (r.created ? '<div class="deal-det-row"><span>Дата заявки</span><b>' + fmtDateShort(r.created) + '</b></div>' : '') +
+      (has(r.tourists) ? '<div class="deal-det-row"><span>Туристов</span><b>' + r.tourists + '</b></div>' : '') +
+      '<div class="deal-det-row"><span>UTM-кампания</span><b>' + esc(r.utm_campaign || '—') + '</b></div>';
     var btn = el('button', 'deal-open-btn', 'Открыть сделку в Битриксе →');
     btn.addEventListener('click', function (e) { e.stopPropagation(); openDealLink(r.url); });
     det.appendChild(btn);
