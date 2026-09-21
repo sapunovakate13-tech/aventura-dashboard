@@ -199,6 +199,7 @@
   .tt-state { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 4px; vertical-align: middle; }
   .tt-state.paid { background: #DFF0E6; color: #2F7C52; }
   .tt-state.inprog { background: #FBEFD6; color: #9A6A16; }
+  .tt-subhead { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-faint); margin: 12px 0 4px; }
   .src-subrow { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-dim); }
   .src-subname { position: relative; padding-left: 12px; }
   .src-subname::before { content: ''; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); transform: translateY(-50%); }
@@ -1167,8 +1168,18 @@
         '<div class="src-share">' + num(c.paid_count) + ' опл · ' + num(c.inprog_count) + ' в раб.</div></div>';
       group.appendChild(row);
       var sub = el('div', 'src-sublist deal-sublist'); sub.hidden = true;
-      var mg = el('div', '', ttMetricsGrid(c)); sub.appendChild(mg);
-      (c.lead_list || []).forEach(function (r) { sub.appendChild(ttLeadRow(r)); });
+      sub.appendChild(el('div', '', ttMetricsGrid(c)));
+      var pd = c.paid_deals || [], ip = c.inprog_deals || [], lds = c.lead_list || [];
+      if (pd.length) {
+        sub.appendChild(el('div', 'tt-subhead', 'Оплаченные сделки · ' + pd.length));
+        pd.forEach(function (r) { sub.appendChild(makeDealRow(r, 'оплата ' + fmtDateShort(r.date))); });
+      }
+      if (ip.length) {
+        sub.appendChild(el('div', 'tt-subhead', 'Сделки в работе · ' + ip.length));
+        ip.forEach(function (r) { sub.appendChild(makeDealRow(r, 'в работе ' + (has(r.days_in_work) ? r.days_in_work + ' дн.' : '—'))); });
+      }
+      sub.appendChild(el('div', 'tt-subhead', 'Лиды · ' + lds.length));
+      lds.forEach(function (r) { sub.appendChild(ttLeadRow(r)); });
       group.appendChild(sub);
       row.addEventListener('click', function () { sub.hidden = !sub.hidden; row.classList.toggle('open'); });
       wrap.appendChild(group);
